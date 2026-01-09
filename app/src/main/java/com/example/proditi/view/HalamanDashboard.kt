@@ -16,8 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.proditi.uicontroller.route.DestinasiDashboard
+import com.example.proditi.uicontroller.route.DestinasiHome
+import com.example.proditi.uicontroller.route.DestinasiBarangHome
+import com.example.proditi.uicontroller.route.DestinasiPeminjamHome
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,7 +115,7 @@ data class MenuItem(
 )
 
 val menuItems = listOf(
-    MenuItem("Peminjaman", Icons.Default.Assignment, "home"),
-    MenuItem("Data Barang", Icons.Default.Inventory, "barang"), // Placeholder route
-    MenuItem("Data Peminjam", Icons.Default.People, "peminjam") // Placeholder route
+    MenuItem("Peminjaman", Icons.Default.Assignment, DestinasiHome.route),
+    MenuItem("Data Barang", Icons.Default.Inventory, DestinasiBarangHome.route),
+    MenuItem("Data Peminjam", Icons.Default.People, DestinasiPeminjamHome.route)
 )

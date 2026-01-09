@@ -12,20 +12,18 @@ object PenyediaViewModel {
     val Factory = viewModelFactory {
         initializer { HomeViewModel(aplikasiPeminjaman().container.peminjamanRepository) }
         initializer { EntryViewModel(aplikasiPeminjaman().container.peminjamanRepository) }
+        initializer { DetailViewModel(createSavedStateHandle(), aplikasiPeminjaman().container.peminjamanRepository) }
+        initializer { EditViewModel(createSavedStateHandle(), aplikasiPeminjaman().container.peminjamanRepository) }
 
-        // Tambahan untuk Detail & Edit
-        initializer {
-            DetailViewModel(
-                createSavedStateHandle(),
-                aplikasiPeminjaman().container.peminjamanRepository
-            )
-        }
-        initializer {
-            EditViewModel(
-                createSavedStateHandle(),
-                aplikasiPeminjaman().container.peminjamanRepository
-            )
-        }
+        // Barang
+        initializer { BarangHomeViewModel(aplikasiPeminjaman().container.peminjamanRepository) }
+        initializer { BarangEntryViewModel(aplikasiPeminjaman().container.peminjamanRepository) }
+        initializer { BarangDetailViewModel(createSavedStateHandle(), aplikasiPeminjaman().container.peminjamanRepository) }
+
+        // Peminjam
+        initializer { PeminjamHomeViewModel(aplikasiPeminjaman().container.peminjamanRepository) }
+        initializer { PeminjamEntryViewModel(aplikasiPeminjaman().container.peminjamanRepository) }
+        initializer { PeminjamDetailViewModel(createSavedStateHandle(), aplikasiPeminjaman().container.peminjamanRepository) }
     }
 }
 

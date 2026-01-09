@@ -1,6 +1,5 @@
 package com.example.proditi.uicontroller.route
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -30,24 +29,21 @@ fun PengelolaHalaman(
             )
         }
 
-        // Halaman Home (Daftar Peminjaman)
+        // --- SECTION PEMINJAMAN ---
         composable(DestinasiHome.route) {
             HalamanHome(
                 navigateToItemEntry = { navController.navigate(DestinasiEntry.route) },
                 onDetailClick = { itemId ->
                     navController.navigate("${DestinasiDetail.route}/$itemId")
-                }
+                },
+                navigateBack = { navController.popBackStack() }
             )
         }
-
-        // Halaman Entry (Tambah Peminjaman)
         composable(DestinasiEntry.route) {
             HalamanEntry(
                 navigateBack = { navController.popBackStack() }
             )
         }
-
-        // Halaman Detail
         composable(
             route = DestinasiDetail.routeWithArgs,
             arguments = listOf(navArgument(DestinasiDetail.peminjamanId) { type = NavType.IntType })
@@ -59,8 +55,6 @@ fun PengelolaHalaman(
                 }
             )
         }
-
-        // Halaman Edit
         composable(
             route = DestinasiEdit.routeWithArgs,
             arguments = listOf(navArgument(DestinasiEdit.peminjamanId) { type = NavType.IntType })
@@ -69,16 +63,59 @@ fun PengelolaHalaman(
                 navigateBack = { navController.popBackStack() }
             )
         }
-        
-        // Placeholder untuk Barang dan Peminjam
-        composable("barang") {
-            // Anda bisa membuat HalamanBarang yang serupa dengan HalamanHome
-            Text("Halaman Data Barang (Segera Hadir)")
+
+        // --- SECTION BARANG ---
+        composable(DestinasiBarangHome.route) {
+            HalamanBarangHome(
+                navigateToEntry = { navController.navigate(DestinasiBarangEntry.route) },
+                onDetailClick = { id -> navController.navigate("${DestinasiBarangDetail.route}/$id") },
+                navigateBack = { navController.popBackStack() }
+            )
         }
-        
-        composable("peminjam") {
-            // Anda bisa membuat HalamanPeminjam yang serupa dengan HalamanHome
-            Text("Halaman Data Peminjam (Segera Hadir)")
+        composable(DestinasiBarangEntry.route) {
+            HalamanBarangEntry(navigateBack = { navController.popBackStack() })
+        }
+        composable(
+            route = DestinasiBarangDetail.routeWithArgs,
+            arguments = listOf(navArgument(DestinasiBarangDetail.barangId) { type = NavType.IntType })
+        ) {
+            HalamanBarangDetail(
+                navigateBack = { navController.popBackStack() },
+                navigateToEdit = { id -> navController.navigate("${DestinasiBarangEdit.route}/$id") }
+            )
+        }
+        composable(
+            route = DestinasiBarangEdit.routeWithArgs,
+            arguments = listOf(navArgument(DestinasiBarangEdit.barangId) { type = NavType.IntType })
+        ) {
+            HalamanBarangEdit(navigateBack = { navController.popBackStack() })
+        }
+
+        // --- SECTION PEMINJAM ---
+        composable(DestinasiPeminjamHome.route) {
+            HalamanPeminjamHome(
+                navigateToEntry = { navController.navigate(DestinasiPeminjamEntry.route) },
+                onDetailClick = { id -> navController.navigate("${DestinasiPeminjamDetail.route}/$id") },
+                navigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(DestinasiPeminjamEntry.route) {
+            HalamanPeminjamEntry(navigateBack = { navController.popBackStack() })
+        }
+        composable(
+            route = DestinasiPeminjamDetail.routeWithArgs,
+            arguments = listOf(navArgument(DestinasiPeminjamDetail.peminjamId) { type = NavType.IntType })
+        ) {
+            HalamanPeminjamDetail(
+                navigateBack = { navController.popBackStack() },
+                navigateToEdit = { id -> navController.navigate("${DestinasiPeminjamEdit.route}/$id") }
+            )
+        }
+        composable(
+            route = DestinasiPeminjamEdit.routeWithArgs,
+            arguments = listOf(navArgument(DestinasiPeminjamEdit.peminjamId) { type = NavType.IntType })
+        ) {
+            HalamanPeminjamEdit(navigateBack = { navController.popBackStack() })
         }
     }
 }

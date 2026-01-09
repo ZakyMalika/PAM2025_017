@@ -25,6 +25,13 @@ data class PeminjamResponse(
 )
 
 @Serializable
+data class KategoriResponse(
+    val status: Boolean,
+    val message: String,
+    val data: List<Kategori>
+)
+
+@Serializable
 data class Peminjaman(
     val id: Int = 0,
     @SerialName("tanggal_pinjam") val tanggalPinjam: String,
@@ -38,16 +45,23 @@ data class Peminjaman(
 
 @Serializable
 data class Barang(
-    val id: Int,
+    val id: Int = 0,
     @SerialName("nama_barang") val namaBarang: String,
     val kondisi: String,
-    @SerialName("kategori_id") val kategoriId: Int // <--- Ubah jadi 'i' (kategori_id)
+    @SerialName("kategori_id") val kategoriId: Int,
+    val kategori: Kategori? = null
 )
 
 @Serializable
 data class Peminjam(
-    val id: Int,
+    val id: Int = 0,
     @SerialName("nama_peminjam") val namaPeminjam: String,
     @SerialName("nim_nik") val nimNik: String,
     @SerialName("no_hp") val noHp: String
+)
+
+@Serializable
+data class Kategori(
+    val id: Int = 0,
+    @SerialName("nama_kategori") val namaKategori: String
 )

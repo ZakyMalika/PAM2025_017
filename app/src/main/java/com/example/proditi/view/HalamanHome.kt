@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.proditi.modeldata.Peminjaman
 import com.example.proditi.uicontroller.route.DestinasiHome
 import com.example.proditi.viewmodel.HomeUiState
 import com.example.proditi.viewmodel.HomeViewModel
@@ -20,12 +19,19 @@ import com.example.proditi.viewmodel.provider.PenyediaViewModel
 @Composable
 fun HalamanHome(
     navigateToItemEntry: () -> Unit,
-    onDetailClick: (Int) -> Unit, // Parameter navigasi ke detail
+    onDetailClick: (Int) -> Unit,
+    navigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text(DestinasiHome.titleRes) }) },
+        topBar = {
+            ProdiTITopAppBar(
+                title = DestinasiHome.titleRes,
+                canNavigateBack = true,
+                navigateUp = navigateBack
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = navigateToItemEntry) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Tambah")
@@ -38,9 +44,8 @@ fun HalamanHome(
             is HomeUiState.Success -> {
                 LazyColumn(modifier = Modifier.padding(innerPadding)) {
                     items(state.peminjaman) { data ->
-                        // PERBAIKAN DI SINI: Tambahkan onClick pada Card
                         Card(
-                            onClick = { onDetailClick(data.id) }, // <--- Panggil fungsi navigasi di sini
+                            onClick = { onDetailClick(data.id) },
                             modifier = Modifier
                                 .padding(8.dp)
                                 .fillMaxWidth()
