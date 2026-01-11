@@ -57,24 +57,33 @@ object DestinasiBarangEdit : DestinasiNavigasi {
 // Destinasi Peminjam
 object DestinasiPeminjamHome : DestinasiNavigasi {
     override val route = "peminjam_home"
-    override val titleRes = "Data Peminjam"
+    override val titleRes = "Daftar Peminjam"
 }
+
 object DestinasiPeminjamEntry : DestinasiNavigasi {
     override val route = "peminjam_entry"
     override val titleRes = "Tambah Peminjam"
 }
+
 object DestinasiPeminjamDetail : DestinasiNavigasi {
     override val route = "peminjam_detail"
     override val titleRes = "Detail Peminjam"
-    const val peminjamId = "peminjamId"
+    const val peminjamId = "peminjamId" // KUNCI UTAMA: String ini harus sama
     val routeWithArgs = "$route/{$peminjamId}"
 }
+
 object DestinasiPeminjamEdit : DestinasiNavigasi {
     override val route = "peminjam_edit"
     override val titleRes = "Edit Peminjam"
     const val peminjamId = "peminjamId"
     val routeWithArgs = "$route/{$peminjamId}"
 }
+
+
+
+
+
+
 
 // Destinasi Kategori
 object DestinasiKategoriHome : DestinasiNavigasi {

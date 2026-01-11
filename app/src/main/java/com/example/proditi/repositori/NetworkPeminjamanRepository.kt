@@ -68,33 +68,35 @@ class NetworkPeminjamanRepository(
     }
 
 
-    // --- BAGIAN PEMINJAM ---
-    override suspend fun getPeminjam(): List<Peminjam> {
-        return peminjamanApiService.getPeminjam().data
-    }
-
-    override suspend fun getPeminjamById(id: Int): Peminjam {
-        // PERBAIKAN: Ambil .data dari PeminjamDetailResponse
-        return peminjamanApiService.getPeminjamById(id).data
-    }
+    // --- Implementasi Peminjam ---
 
     override suspend fun insertPeminjam(peminjam: Peminjam) {
         peminjamanApiService.insertPeminjam(peminjam)
     }
 
+    // CEK BAGIAN INI:
     override suspend fun updatePeminjam(id: Int, peminjam: Peminjam) {
+        // Pastikan memanggil updatePeminjam, bukan insertPeminjam
         peminjamanApiService.updatePeminjam(id, peminjam)
     }
 
     override suspend fun deletePeminjam(id: Int) {
         try {
-            val response = peminjamanApiService.deletePeminjam(id)
-            if (!response.isSuccessful) {
-                throw IOException("Gagal menghapus peminjam. Code: ${response.code()}")
-            }
+            // Cukup panggil fungsinya saja.
+            // Jika gagal, Retrofit akan otomatis melempar error ke blok catch.
+            peminjamanApiService.deletePeminjam(id)
         } catch (e: Exception) {
             throw e
         }
+    }
+
+    override suspend fun getPeminjam(): List<Peminjam> {
+        return peminjamanApiService.getPeminjam().data
+    }
+
+
+    override suspend fun getPeminjamById(id: Int): Peminjam {
+        return peminjamanApiService.getPeminjamById(id).data
     }
 
 

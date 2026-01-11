@@ -44,21 +44,23 @@ interface PeminjamanService {
     suspend fun deleteBarang(@Path("id") id: Int): Response<Unit>
 
     // Data Peminjam
-    @GET("peminjam")
-    suspend fun getPeminjam(): PeminjamResponse
+    // --- BAGIAN PEMINJAM ---
 
-    // PERBAIKAN 3: Gunakan PeminjamDetailResponse
+    @GET("peminjam")
+    suspend fun getPeminjam(): PeminjamResponse // Pastikan return type ini benar
+
     @GET("peminjam/{id}")
     suspend fun getPeminjamById(@Path("id") id: Int): PeminjamDetailResponse
 
     @POST("peminjam")
     suspend fun insertPeminjam(@Body peminjam: Peminjam)
 
+    // PASTIKAN INI MENGGUNAKAN @PUT
     @PUT("peminjam/{id}")
     suspend fun updatePeminjam(@Path("id") id: Int, @Body peminjam: Peminjam)
 
     @DELETE("peminjam/{id}")
-    suspend fun deletePeminjam(@Path("id") id: Int): Response<Unit>
+    suspend fun deletePeminjam(@Path("id") id: Int) // Tidak perlu return type, defaultnya Unit
 
     // Data Kategori
     @GET("kategori")

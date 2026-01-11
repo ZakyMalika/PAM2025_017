@@ -1,4 +1,4 @@
-package com.example.proditi.viewmodel
+package com.example.proditi.viewmodel.peminjam
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,34 +15,57 @@ class PeminjamEditViewModel(
     savedStateHandle: SavedStateHandle,
     private val repository: PeminjamanRepository
 ) : ViewModel() {
-    private val peminjamId: Int = checkNotNull(savedStateHandle[DestinasiPeminjamEdit.peminjamId])
 
+    // Mengambil ID Peminjam dari argumen navigasi
+    private val id: Int = checkNotNull(savedStateHandle[DestinasiPeminjamEdit.peminjamId])
+
+    // State form input (menggunakan nim dan noHp)
     var uiState by mutableStateOf(PeminjamEntryUiState())
         private set
 
     init {
+        loadPeminjam()
+    }
+
+    // Mengambil data lama dari server untuk ditampilkan di form
+    private fun loadPeminjam() {
         viewModelScope.launch {
-            val peminjam = repository.getPeminjamById(peminjamId)
-            uiState = PeminjamEntryUiState(
-                id = peminjam.id,
-                namaPeminjam = peminjam.namaPeminjam,
-                nimNik = peminjam.nimNik,
-                noHp = peminjam.noHp
-            )
+            try {
+                val data = repository.getPeminjamById(id)
+                uiState = PeminjamEntryUiState(
+                    namaPeminjam = data.namaPeminjam,
+                    nim = data.nim,   // Pastikan di DataPeminjaman.kt sudah menggunakan @SerialName("nim_nik")
+                    noHp = data.noHp  // Pastikan di DataPeminjaman.kt sudah menggunakan @SerialName("no_hp")
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
-    fun updateUiState(newUiState: PeminjamEntryUiState) {
-        uiState = newUiState
+    // Update tampilan saat user mengetik
+    fun updateUiState(newState: PeminjamEntryUiState) {
+        uiState = newState
     }
 
-    suspend fun updatePeminjam() {
-        val peminjam = Peminjam(
-            id = peminjamId,
-            namaPeminjam = uiState.namaPeminjam,
-            nimNik = uiState.nimNik,
-            noHp = uiState.noHp
-        )
-        repository.updatePeminjam(peminjamId, peminjam)
+    // Simpan perubahan ke database
+    fun updatePeminjam(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                repository.updatePeminjam(
+                    id,
+                    Peminjam(
+                        id = id,
+                        namaPeminjam = uiState.namaPeminjam,
+                        nim = uiState.nim,
+                        noHp = uiState.noHp
+                    )
+                )
+                onSuccess()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                println("Gagal update peminjam: ${e.message}")
+            }
+        }
     }
 }

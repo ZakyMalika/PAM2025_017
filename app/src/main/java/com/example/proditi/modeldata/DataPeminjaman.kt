@@ -54,10 +54,23 @@ data class Barang(
 
 @Serializable
 data class Peminjam(
-    val id: Int = 0,
-    @SerialName("nama_peminjam") val namaPeminjam: String,
-    @SerialName("nim_nik") val nimNik: String,
-    @SerialName("no_hp") val noHp: String
+    val id: Int,
+
+    @SerialName("nama_peminjam")
+    val namaPeminjam: String,
+
+    @SerialName("nim_nik") // Sesuai kolom database
+    val nim: String,       // Kita pakai nama variabel 'nim' di Kotlin agar singkat
+
+    @SerialName("no_hp")   // Sesuai kolom database
+    val noHp: String       // Kita pakai nama variabel 'noHp' di Kotlin
+)
+
+@Serializable
+data class PeminjamDetailResponse(
+    val status: Boolean,
+    val message: String,
+    val data: Peminjam // Single Object
 )
 
 @Serializable
@@ -81,12 +94,12 @@ data class BarangDetailResponse(
     val data: Barang
 )
 
-@Serializable
-data class PeminjamDetailResponse(
-    val status: Boolean,
-    val message: String,
-    val data: Peminjam
-)
+//@Serializable
+//data class PeminjamDetailResponse(
+//    val status: Boolean,
+//    val message: String,
+//    val data: Peminjam
+//)
 
 @Serializable
 data class PeminjamanDetailResponse(

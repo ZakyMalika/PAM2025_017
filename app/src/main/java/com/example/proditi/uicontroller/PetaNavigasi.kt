@@ -13,6 +13,10 @@ import com.example.proditi.uicontroller.view.barang.HalamanBarangDetail
 import com.example.proditi.uicontroller.view.barang.HalamanBarangEdit
 import com.example.proditi.uicontroller.view.barang.HalamanBarangHome
 import com.example.proditi.uicontroller.view.barang.*
+import com.example.proditi.uicontroller.view.peminjam.HalamanPeminjamDetail
+import com.example.proditi.uicontroller.view.peminjam.HalamanPeminjamEdit
+import com.example.proditi.uicontroller.view.peminjam.HalamanPeminjamEntry
+import com.example.proditi.uicontroller.view.peminjam.HalamanPeminjamHome
 
 
 @Composable
@@ -146,28 +150,47 @@ fun PengelolaHalaman(
         // =========================================================
         composable(DestinasiPeminjamHome.route) {
             HalamanPeminjamHome(
+                navigateBack = { navController.popBackStack() },
                 navigateToEntry = { navController.navigate(DestinasiPeminjamEntry.route) },
-                onDetailClick = { id -> navController.navigate("${DestinasiPeminjamDetail.route}/$id") },
+                onDetailClick = { id ->
+                    // Mengirim ID ke halaman detail
+                    navController.navigate("${DestinasiPeminjamDetail.route}/$id")
+                }
+            )
+        }
+
+        // 2. ENTRY PEMINJAM
+        composable(DestinasiPeminjamEntry.route) {
+            HalamanPeminjamEntry(
                 navigateBack = { navController.popBackStack() }
             )
         }
-        composable(DestinasiPeminjamEntry.route) {
-            HalamanPeminjamEntry(navigateBack = { navController.popBackStack() })
-        }
+
+        // 3. DETAIL PEMINJAM (Pastikan arguments-nya benar)
         composable(
             route = DestinasiPeminjamDetail.routeWithArgs,
-            arguments = listOf(navArgument(DestinasiPeminjamDetail.peminjamId) { type = NavType.IntType })
+            arguments = listOf(navArgument(DestinasiPeminjamDetail.peminjamId) {
+                type = NavType.IntType
+            })
         ) {
             HalamanPeminjamDetail(
                 navigateBack = { navController.popBackStack() },
-                navigateToEdit = { id -> navController.navigate("${DestinasiPeminjamEdit.route}/$id") }
+                navigateToEdit = { id ->
+                    navController.navigate("${DestinasiPeminjamEdit.route}/$id")
+                }
             )
         }
+
+        // 4. EDIT PEMINJAM
         composable(
             route = DestinasiPeminjamEdit.routeWithArgs,
-            arguments = listOf(navArgument(DestinasiPeminjamEdit.peminjamId) { type = NavType.IntType })
+            arguments = listOf(navArgument(DestinasiPeminjamEdit.peminjamId) {
+                type = NavType.IntType
+            })
         ) {
-            HalamanPeminjamEdit(navigateBack = { navController.popBackStack() })
+            HalamanPeminjamEdit(
+                navigateBack = { navController.popBackStack() }
+            )
         }
     }
 }
