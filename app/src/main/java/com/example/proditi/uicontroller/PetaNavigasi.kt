@@ -117,5 +117,32 @@ fun PengelolaHalaman(
         ) {
             HalamanPeminjamEdit(navigateBack = { navController.popBackStack() })
         }
+
+        // --- SECTION KATEGORI ---
+        composable(DestinasiKategoriHome.route) {
+            HalamanKategoriHome(
+                navigateToEntry = { navController.navigate(DestinasiKategoriEntry.route) },
+                onDetailClick = { id -> navController.navigate("${DestinasiKategoriDetail.route}/$id") },
+                navigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(DestinasiKategoriEntry.route) {
+            HalamanKategoriEntry(navigateBack = { navController.popBackStack() })
+        }
+        composable(
+            route = DestinasiKategoriDetail.routeWithArgs,
+            arguments = listOf(navArgument(DestinasiKategoriDetail.kategoriId) { type = NavType.IntType })
+        ) {
+            HalamanKategoriDetail(
+                navigateBack = { navController.popBackStack() },
+                navigateToEdit = { id -> navController.navigate("${DestinasiKategoriEdit.route}/$id") }
+            )
+        }
+        composable(
+            route = DestinasiKategoriEdit.routeWithArgs,
+            arguments = listOf(navArgument(DestinasiKategoriEdit.kategoriId) { type = NavType.IntType })
+        ) {
+            HalamanKategoriEdit(navigateBack = { navController.popBackStack() })
+        }
     }
 }

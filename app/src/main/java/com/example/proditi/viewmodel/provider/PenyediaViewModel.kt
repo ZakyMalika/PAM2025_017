@@ -19,11 +19,19 @@ object PenyediaViewModel {
         initializer { BarangHomeViewModel(aplikasiPeminjaman().container.peminjamanRepository) }
         initializer { BarangEntryViewModel(aplikasiPeminjaman().container.peminjamanRepository) }
         initializer { BarangDetailViewModel(createSavedStateHandle(), aplikasiPeminjaman().container.peminjamanRepository) }
+        initializer { BarangEditViewModel(createSavedStateHandle(), aplikasiPeminjaman().container.peminjamanRepository) }
 
         // Peminjam
         initializer { PeminjamHomeViewModel(aplikasiPeminjaman().container.peminjamanRepository) }
         initializer { PeminjamEntryViewModel(aplikasiPeminjaman().container.peminjamanRepository) }
         initializer { PeminjamDetailViewModel(createSavedStateHandle(), aplikasiPeminjaman().container.peminjamanRepository) }
+        initializer { PeminjamEditViewModel(createSavedStateHandle(), aplikasiPeminjaman().container.peminjamanRepository) }
+
+        // Kategori
+        initializer { KategoriHomeViewModel(aplikasiPeminjaman().container.peminjamanRepository) }
+        initializer { KategoriEntryViewModel(aplikasiPeminjaman().container.peminjamanRepository) }
+        initializer { KategoriDetailViewModel(createSavedStateHandle(), aplikasiPeminjaman().container.peminjamanRepository) }
+        initializer { KategoriEditViewModel(createSavedStateHandle(), aplikasiPeminjaman().container.peminjamanRepository) }
     }
 }
 

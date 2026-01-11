@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proditi.modeldata.Barang
+import com.example.proditi.modeldata.Kategori
 import com.example.proditi.repositori.PeminjamanRepository
 import kotlinx.coroutines.launch
 
@@ -46,17 +47,42 @@ class BarangEntryViewModel(private val repository: PeminjamanRepository) : ViewM
     var uiState by mutableStateOf(BarangEntryUiState())
         private set
 
+    var listKategori by mutableStateOf<List<Kategori>>(emptyList())
+        private set
+
+    init {
+        loadKategori()
+    }
+
+    private fun loadKategori() {
+        viewModelScope.launch {
+            try {
+                listKategori = repository.getKategori()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun updateUiState(newUiState: BarangEntryUiState) {
         uiState = newUiState
     }
 
+    fun isInputValid(): Boolean {
+        return uiState.namaBarang.isNotBlank() && 
+               uiState.kondisi.isNotBlank() && 
+               uiState.kategoriId.isNotBlank()
+    }
+
     suspend fun saveBarang() {
-        val barang = Barang(
-            id = 0,
-            namaBarang = uiState.namaBarang,
-            kondisi = uiState.kondisi,
-            kategoriId = uiState.kategoriId.toIntOrNull() ?: 0
-        )
-        repository.insertBarang(barang)
+        if (isInputValid()) {
+            val barang = Barang(
+                id = 0,
+                namaBarang = uiState.namaBarang,
+                kondisi = uiState.kondisi,
+                kategoriId = uiState.kategoriId.toIntOrNull() ?: 0
+            )
+            repository.insertBarang(barang)
+        }
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.*
@@ -20,6 +21,7 @@ import com.example.proditi.uicontroller.route.DestinasiDashboard
 import com.example.proditi.uicontroller.route.DestinasiHome
 import com.example.proditi.uicontroller.route.DestinasiBarangHome
 import com.example.proditi.uicontroller.route.DestinasiPeminjamHome
+import com.example.proditi.uicontroller.route.DestinasiKategoriHome
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,5 +119,6 @@ data class MenuItem(
 val menuItems = listOf(
     MenuItem("Peminjaman", Icons.Default.Assignment, DestinasiHome.route),
     MenuItem("Data Barang", Icons.Default.Inventory, DestinasiBarangHome.route),
-    MenuItem("Data Peminjam", Icons.Default.People, DestinasiPeminjamHome.route)
+    MenuItem("Data Peminjam", Icons.Default.People, DestinasiPeminjamHome.route),
+    MenuItem("Kategori", Icons.Default.Category, DestinasiKategoriHome.route)
 )

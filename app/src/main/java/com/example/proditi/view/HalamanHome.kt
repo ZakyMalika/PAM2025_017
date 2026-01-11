@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -24,6 +25,11 @@ fun HalamanHome(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
+    // Refresh data setiap kali halaman ini muncul
+    LaunchedEffect(Unit) {
+        viewModel.getPeminjaman()
+    }
+
     Scaffold(
         topBar = {
             ProdiTITopAppBar(
@@ -39,24 +45,34 @@ fun HalamanHome(
         },
     ) { innerPadding ->
         when (val state = viewModel.homeUiState) {
-            is HomeUiState.Loading -> Text("Loading...", Modifier.padding(innerPadding))
-            is HomeUiState.Error -> Text("Error Terjadi", Modifier.padding(innerPadding))
+            is HomeUiState.Loading -> Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                CircularProgressIndicator()
+            }
+            is HomeUiState.Error -> Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                Text("Error Terjadi")
+            }
             is HomeUiState.Success -> {
-                LazyColumn(modifier = Modifier.padding(innerPadding)) {
-                    items(state.peminjaman) { data ->
-                        Card(
-                            onClick = { onDetailClick(data.id) },
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .fillMaxWidth()
-                        ) {
-                            Column(Modifier.padding(16.dp)) {
-                                Text(
-                                    text = data.barang?.namaBarang ?: "Barang",
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(text = "Peminjam: ${data.peminjam?.namaPeminjam}")
-                                Text(text = "${data.tanggalPinjam} - ${data.tanggalKembali}")
+                if (state.peminjaman.isEmpty()) {
+                    Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                        Text("Tidak ada data peminjaman")
+                    }
+                } else {
+                    LazyColumn(modifier = Modifier.padding(innerPadding)) {
+                        items(state.peminjaman) { data ->
+                            Card(
+                                onClick = { onDetailClick(data.id) },
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Column(Modifier.padding(16.dp)) {
+                                    Text(
+                                        text = data.barang?.namaBarang ?: "Barang",
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Text(text = "Peminjam: ${data.peminjam?.namaPeminjam}")
+                                    Text(text = "Tgl: ${data.tanggalPinjam} s/d ${data.tanggalKembali}")
+                                }
                             }
                         }
                     }

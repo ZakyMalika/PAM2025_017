@@ -75,3 +75,25 @@ object DestinasiPeminjamEdit : DestinasiNavigasi {
     const val peminjamId = "peminjamId"
     val routeWithArgs = "$route/{$peminjamId}"
 }
+
+// Destinasi Kategori
+object DestinasiKategoriHome : DestinasiNavigasi {
+    override val route = "kategori_home"
+    override val titleRes = "Data Kategori"
+}
+object DestinasiKategoriEntry : DestinasiNavigasi {
+    override val route = "kategori_entry"
+    override val titleRes = "Tambah Kategori"
+}
+object DestinasiKategoriDetail : DestinasiNavigasi {
+    override val route = "kategori_detail"
+    override val titleRes = "Detail Kategori"
+    const val kategoriId = "kategoriId"
+    val routeWithArgs = "$route/{$kategoriId}"
+}
+object DestinasiKategoriEdit : DestinasiNavigasi {
+    override val route = "kategori_edit"
+    override val titleRes = "Edit Kategori"
+    const val kategoriId = "kategoriId"
+    val routeWithArgs = "$route/{$kategoriId}"
+}
