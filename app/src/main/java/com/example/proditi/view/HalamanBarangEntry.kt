@@ -7,20 +7,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proditi.modeldata.Kategori
-import com.example.proditi.uicontroller.route.DestinasiBarangEdit
-import com.example.proditi.viewmodel.barang.BarangEditViewModel
+import com.example.proditi.uicontroller.route.DestinasiBarangEntry
+import com.example.proditi.viewmodel.barang.BarangEntryViewModel
 import com.example.proditi.viewmodel.provider.PenyediaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HalamanBarangEdit(
+fun HalamanBarangEntry(
     navigateBack: () -> Unit,
-    viewModel: BarangEditViewModel = viewModel(factory = PenyediaViewModel.Factory)
+    viewModel: BarangEntryViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(DestinasiBarangEdit.titleRes) },
+                title = { Text(DestinasiBarangEntry.titleRes) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -51,41 +51,40 @@ fun HalamanBarangEdit(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Dropdown Kategori
-            DropdownKategori(
+            // DROPDOWN KATEGORI
+            DropdownKategoriEntry(
                 kategoriList = viewModel.kategoriList,
-                selectedKategoriId = viewModel.uiState.kategoriId, // Ini menerima Int?
+                selectedKategoriId = viewModel.uiState.kategoriId,
                 onKategoriSelected = { selectedId ->
                     viewModel.updateUiState(viewModel.uiState.copy(kategoriId = selectedId))
                 }
             )
 
-            // Tombol Update
+            // Tombol Simpan
             Button(
-                onClick = { viewModel.updateBarang(onSuccess = navigateBack) },
+                onClick = { viewModel.saveBarang(onSuccess = navigateBack) },
                 modifier = Modifier.fillMaxWidth(),
-                // Tombol aktif hanya jika form valid
+                // Tombol aktif jika semua field terisi
                 enabled = viewModel.uiState.namaBarang.isNotEmpty() &&
                         viewModel.uiState.kondisi.isNotEmpty() &&
                         viewModel.uiState.kategoriId != null
             ) {
-                Text("Update Barang")
+                Text("Simpan")
             }
         }
     }
 }
 
-// Fungsi Dropdown yang support Int? (Nullable)
+// Fungsi Dropdown Khusus Entry
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropdownKategori(
+fun DropdownKategoriEntry(
     kategoriList: List<Kategori>,
-    selectedKategoriId: Int?, // <--- Pastikan tipe datanya Int? (Nullable)
+    selectedKategoriId: Int?,
     onKategoriSelected: (Int) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    // Cari nama kategori berdasarkan ID, jika null tampilkan "Pilih Kategori"
     val selectedKategoriName = kategoriList.find { it.id == selectedKategoriId }?.namaKategori ?: "Pilih Kategori"
 
     ExposedDropdownMenuBox(

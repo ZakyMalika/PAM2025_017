@@ -9,6 +9,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.proditi.uicontroller.view.*
+import com.example.proditi.uicontroller.view.barang.HalamanBarangDetail
+import com.example.proditi.uicontroller.view.barang.HalamanBarangEdit
+import com.example.proditi.uicontroller.view.barang.HalamanBarangHome
+import com.example.proditi.uicontroller.view.barang.*
+
 
 @Composable
 fun PengelolaHalaman(
@@ -20,7 +25,7 @@ fun PengelolaHalaman(
         startDestination = DestinasiDashboard.route,
         modifier = modifier
     ) {
-        // Halaman Dashboard
+        // --- DASHBOARD (Sesuai dengan kode Anda) ---
         composable(DestinasiDashboard.route) {
             HalamanDashboard(
                 onMenuClick = { route ->
@@ -29,7 +34,38 @@ fun PengelolaHalaman(
             )
         }
 
-        // --- SECTION PEMINJAMAN ---
+        // --- SECTION KATEGORI (Fitur Baru) ---
+        composable(DestinasiKategoriHome.route) {
+            HalamanKategoriHome(
+                navigateToEntry = { navController.navigate(DestinasiKategoriEntry.route) },
+                onDetailClick = { id -> navController.navigate("${DestinasiKategoriDetail.route}/$id") },
+                navigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(DestinasiKategoriEntry.route) {
+            HalamanKategoriEntry(navigateBack = { navController.popBackStack() })
+        }
+        composable(
+            route = DestinasiKategoriDetail.routeWithArgs,
+            arguments = listOf(navArgument(DestinasiKategoriDetail.kategoriId) { type = NavType.IntType })
+        ) {
+            HalamanKategoriDetail(
+                navigateBack = { navController.popBackStack() },
+                navigateToEdit = { id -> navController.navigate("${DestinasiKategoriEdit.route}/$id") }
+            )
+        }
+        composable(
+            route = DestinasiKategoriEdit.routeWithArgs,
+            arguments = listOf(navArgument(DestinasiKategoriEdit.kategoriId) { type = NavType.IntType })
+        ) {
+            HalamanKategoriEdit(navigateBack = { navController.popBackStack() })
+        }
+
+
+
+
+
+    // --- SECTION PEMINJAMAN ---
         composable(DestinasiHome.route) {
             HalamanHome(
                 navigateToItemEntry = { navController.navigate(DestinasiEntry.route) },
@@ -55,43 +91,59 @@ fun PengelolaHalaman(
                 }
             )
         }
-        composable(
-            route = DestinasiEdit.routeWithArgs,
-            arguments = listOf(navArgument(DestinasiEdit.peminjamanId) { type = NavType.IntType })
-        ) {
-            HalamanEdit(
+
+        // =========================================================
+        // 3. MODUL BARANG (Tambahkan ini agar tidak Crash)
+        // =========================================================
+
+        // Home Barang
+        composable(DestinasiBarangHome.route) {
+            HalamanBarangHome(
+                navigateBack = { navController.popBackStack() },
+                navigateToEntry = { navController.navigate(DestinasiBarangEntry.route) },
+                onDetailClick = { id ->
+                    navController.navigate("${DestinasiBarangDetail.route}/$id")
+                }
+            )
+        }
+
+        // Entry Barang
+        composable(DestinasiBarangEntry.route) {
+            HalamanBarangEntry(
                 navigateBack = { navController.popBackStack() }
             )
         }
 
-        // --- SECTION BARANG ---
-        composable(DestinasiBarangHome.route) {
-            HalamanBarangHome(
-                navigateToEntry = { navController.navigate(DestinasiBarangEntry.route) },
-                onDetailClick = { id -> navController.navigate("${DestinasiBarangDetail.route}/$id") },
-                navigateBack = { navController.popBackStack() }
-            )
-        }
-        composable(DestinasiBarangEntry.route) {
-            HalamanBarangEntry(navigateBack = { navController.popBackStack() })
-        }
+        // Detail Barang
         composable(
             route = DestinasiBarangDetail.routeWithArgs,
-            arguments = listOf(navArgument(DestinasiBarangDetail.barangId) { type = NavType.IntType })
+            arguments = listOf(navArgument(DestinasiBarangDetail.barangId) {
+                type = NavType.IntType
+            })
         ) {
             HalamanBarangDetail(
                 navigateBack = { navController.popBackStack() },
-                navigateToEdit = { id -> navController.navigate("${DestinasiBarangEdit.route}/$id") }
+                navigateToEdit = { id ->
+                    navController.navigate("${DestinasiBarangEdit.route}/$id")
+                }
             )
         }
+
+        // Edit Barang
         composable(
             route = DestinasiBarangEdit.routeWithArgs,
-            arguments = listOf(navArgument(DestinasiBarangEdit.barangId) { type = NavType.IntType })
+            arguments = listOf(navArgument(DestinasiBarangEdit.barangId) {
+                type = NavType.IntType
+            })
         ) {
-            HalamanBarangEdit(navigateBack = { navController.popBackStack() })
+            HalamanBarangEdit(
+                navigateBack = { navController.popBackStack() }
+            )
         }
 
-        // --- SECTION PEMINJAM ---
+        // =========================================================
+        // 4. MODUL PEMINJAM (Tambahkan juga jika belum ada)
+        // =========================================================
         composable(DestinasiPeminjamHome.route) {
             HalamanPeminjamHome(
                 navigateToEntry = { navController.navigate(DestinasiPeminjamEntry.route) },
@@ -116,33 +168,6 @@ fun PengelolaHalaman(
             arguments = listOf(navArgument(DestinasiPeminjamEdit.peminjamId) { type = NavType.IntType })
         ) {
             HalamanPeminjamEdit(navigateBack = { navController.popBackStack() })
-        }
-
-        // --- SECTION KATEGORI ---
-        composable(DestinasiKategoriHome.route) {
-            HalamanKategoriHome(
-                navigateToEntry = { navController.navigate(DestinasiKategoriEntry.route) },
-                onDetailClick = { id -> navController.navigate("${DestinasiKategoriDetail.route}/$id") },
-                navigateBack = { navController.popBackStack() }
-            )
-        }
-        composable(DestinasiKategoriEntry.route) {
-            HalamanKategoriEntry(navigateBack = { navController.popBackStack() })
-        }
-        composable(
-            route = DestinasiKategoriDetail.routeWithArgs,
-            arguments = listOf(navArgument(DestinasiKategoriDetail.kategoriId) { type = NavType.IntType })
-        ) {
-            HalamanKategoriDetail(
-                navigateBack = { navController.popBackStack() },
-                navigateToEdit = { id -> navController.navigate("${DestinasiKategoriEdit.route}/$id") }
-            )
-        }
-        composable(
-            route = DestinasiKategoriEdit.routeWithArgs,
-            arguments = listOf(navArgument(DestinasiKategoriEdit.kategoriId) { type = NavType.IntType })
-        ) {
-            HalamanKategoriEdit(navigateBack = { navController.popBackStack() })
         }
     }
 }

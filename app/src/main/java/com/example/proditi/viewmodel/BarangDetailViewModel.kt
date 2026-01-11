@@ -21,6 +21,8 @@ class BarangDetailViewModel(
     savedStateHandle: SavedStateHandle,
     private val repository: PeminjamanRepository
 ) : ViewModel() {
+
+    // Pastikan key ini sama persis dengan yang ada di DestinasiNavigasi
     private val barangId: Int = checkNotNull(savedStateHandle[DestinasiBarangDetail.barangId])
 
     var detailUiState: BarangDetailUiState by mutableStateOf(BarangDetailUiState.Loading)
@@ -34,8 +36,14 @@ class BarangDetailViewModel(
         viewModelScope.launch {
             detailUiState = BarangDetailUiState.Loading
             detailUiState = try {
-                BarangDetailUiState.Success(repository.getBarangById(barangId))
+                // Mencoba mengambil data
+                val result = repository.getBarangById(barangId)
+                BarangDetailUiState.Success(result)
             } catch (e: Exception) {
+                // --- TAMBAHKAN INI UNTUK MELIHAT ERROR DI LOGCAT ---
+                e.printStackTrace() // <--- INI PENTING
+                println("ERROR DETAIL: ${e.message}")
+                // ---------------------------------------------------
                 BarangDetailUiState.Error
             }
         }

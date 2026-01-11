@@ -27,10 +27,10 @@ interface PeminjamanService {
     suspend fun deletePeminjaman(@Path("id") id: Int): Response<Unit> // Tambahkan Response<Unit> agar bisa dicek statusnya
 
     // Data Barang
+    // --- BAGIAN BARANG ---
     @GET("barang")
     suspend fun getBarang(): BarangResponse
 
-    // PERBAIKAN 2: Gunakan BarangDetailResponse
     @GET("barang/{id}")
     suspend fun getBarangById(@Path("id") id: Int): BarangDetailResponse
 
