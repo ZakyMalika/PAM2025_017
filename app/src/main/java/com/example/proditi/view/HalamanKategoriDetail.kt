@@ -56,7 +56,7 @@ fun HalamanKategoriDetail(
                             Text(text = "Nama Kategori: ${state.kategori.namaKategori}", style = MaterialTheme.typography.titleLarge)
                         }
                     }
-                    
+
                     Button(
                         onClick = {
                             viewModel.deleteKategori()

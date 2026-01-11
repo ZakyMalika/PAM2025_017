@@ -21,7 +21,8 @@ class KategoriDetailViewModel(
     savedStateHandle: SavedStateHandle,
     private val repository: PeminjamanRepository
 ) : ViewModel() {
-    private val kategoriId: Int = checkNotNull(savedStateHandle[DestinasiKategoriDetail.kategoriId])
+    // Perbaikan pengambilan ID: ambil sebagai string dulu lalu konversi ke Int
+    private val kategoriId: Int = checkNotNull(savedStateHandle[DestinasiKategoriDetail.kategoriId]).toString().toInt()
 
     var detailUiState: KategoriDetailUiState by mutableStateOf(KategoriDetailUiState.Loading)
         private set
@@ -34,8 +35,10 @@ class KategoriDetailViewModel(
         viewModelScope.launch {
             detailUiState = KategoriDetailUiState.Loading
             detailUiState = try {
-                KategoriDetailUiState.Success(repository.getKategoriById(kategoriId))
+                val kategori = repository.getKategoriById(kategoriId)
+                KategoriDetailUiState.Success(kategori)
             } catch (e: Exception) {
+                android.util.Log.e("KategoriDetail", "Error: ${e.message}")
                 KategoriDetailUiState.Error
             }
         }

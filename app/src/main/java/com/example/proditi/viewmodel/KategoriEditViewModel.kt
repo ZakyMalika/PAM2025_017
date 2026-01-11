@@ -15,7 +15,8 @@ class KategoriEditViewModel(
     savedStateHandle: SavedStateHandle,
     private val repository: PeminjamanRepository
 ) : ViewModel() {
-    private val kategoriId: Int = checkNotNull(savedStateHandle[DestinasiKategoriEdit.kategoriId])
+    // Perbaikan pengambilan ID
+    private val kategoriId: Int = checkNotNull(savedStateHandle[DestinasiKategoriEdit.kategoriId]).toString().toInt()
 
     var uiState by mutableStateOf(KategoriEntryUiState())
         private set
@@ -29,7 +30,7 @@ class KategoriEditViewModel(
                     namaKategori = kategori.namaKategori
                 )
             } catch (e: Exception) {
-                e.printStackTrace()
+                android.util.Log.e("KategoriEdit", "Error loading: ${e.message}")
             }
         }
     }
@@ -39,10 +40,14 @@ class KategoriEditViewModel(
     }
 
     suspend fun updateKategori() {
-        val kategori = Kategori(
-            id = kategoriId,
-            namaKategori = uiState.namaKategori
-        )
-        repository.updateKategori(kategoriId, kategori)
+        try {
+            val kategori = Kategori(
+                id = kategoriId,
+                namaKategori = uiState.namaKategori
+            )
+            repository.updateKategori(kategoriId, kategori)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

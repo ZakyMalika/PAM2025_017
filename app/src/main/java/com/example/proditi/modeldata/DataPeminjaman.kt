@@ -65,3 +65,38 @@ data class Kategori(
     val id: Int = 0,
     @SerialName("nama_kategori") val namaKategori: String
 )
+//@Serializable
+//data class Kategori(
+//    val id: Int = 0,
+//    @SerialName("nama_kategori") val namaKategori: String
+//)
+
+// === TAMBAHKAN BAGIAN INI DI PALING BAWAH ===
+
+@Serializable
+data class KategoriDetailResponse(
+    val status: Boolean,
+    val message: String,
+    val data: Kategori // Perhatikan: Tanpa List<>
+)
+
+@Serializable
+data class BarangDetailResponse(
+    val status: Boolean,
+    val message: String,
+    val data: Barang
+)
+
+@Serializable
+data class PeminjamDetailResponse(
+    val status: Boolean,
+    val message: String,
+    val data: Peminjam
+)
+
+@Serializable
+data class PeminjamanDetailResponse(
+    val status: Boolean,
+    val message: String,
+    val data: Peminjaman
+)
