@@ -5,26 +5,43 @@ import retrofit2.Response // Tambahkan import ini
 import retrofit2.http.*
 
 interface PeminjamanService {
-    @Headers("Accept: application/json")
-    @GET("peminjaman")
-    suspend fun getPeminjaman(): PeminjamanResponse
+//    @Headers("Accept: application/json")
+//    @GET("peminjaman")
+//    suspend fun getPeminjaman(): PeminjamanResponse
+//
+//    // PERBAIKAN 1: Gunakan PeminjamanDetailResponse
+//    @Headers("Accept: application/json")
+//    @GET("peminjaman/{id}")
+//    suspend fun getPeminjamanById(@Path("id") id: Int): PeminjamanDetailResponse
+//
+//    @Headers("Accept: application/json")
+//    @POST("peminjaman")
+//    suspend fun insertPeminjaman(@Body peminjaman: Peminjaman)
+//
+//    @Headers("Accept: application/json")
+//    @PUT("peminjaman/{id}")
+//    suspend fun updatePeminjaman(@Path("id") id: Int, @Body peminjaman: Peminjaman)
+//
+//    @Headers("Accept: application/json")
+//    @DELETE("peminjaman/{id}")
+//    suspend fun deletePeminjaman(@Path("id") id: Int): Response<Unit> // Tambahkan Response<Unit> agar bisa dicek statusnya
 
-    // PERBAIKAN 1: Gunakan PeminjamanDetailResponse
-    @Headers("Accept: application/json")
+    // --- TRANSAKSI PEMINJAMAN ---
+    @GET("peminjaman") // Pastikan route di Laravel: apiResource('peminjaman', ...)
+    suspend fun getPeminjaman(): AllPeminjamanResponse
+
     @GET("peminjaman/{id}")
     suspend fun getPeminjamanById(@Path("id") id: Int): PeminjamanDetailResponse
 
-    @Headers("Accept: application/json")
     @POST("peminjaman")
     suspend fun insertPeminjaman(@Body peminjaman: Peminjaman)
 
-    @Headers("Accept: application/json")
     @PUT("peminjaman/{id}")
     suspend fun updatePeminjaman(@Path("id") id: Int, @Body peminjaman: Peminjaman)
 
-    @Headers("Accept: application/json")
     @DELETE("peminjaman/{id}")
-    suspend fun deletePeminjaman(@Path("id") id: Int): Response<Unit> // Tambahkan Response<Unit> agar bisa dicek statusnya
+    suspend fun deletePeminjaman(@Path("id") id: Int)
+
 
     // Data Barang
     // --- BAGIAN BARANG ---

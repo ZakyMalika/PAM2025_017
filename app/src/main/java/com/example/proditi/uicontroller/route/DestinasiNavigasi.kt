@@ -25,10 +25,16 @@ object DestinasiDetail : DestinasiNavigasi {
     const val peminjamanId = "itemId"
     val routeWithArgs = "$route/{$peminjamanId}"
 }
+//object DestinasiEdit : DestinasiNavigasi {
+//    override val route = "edit"
+//    override val titleRes = "Edit Peminjaman"
+//    const val peminjamanId = "itemId"
+//    val routeWithArgs = "$route/{$peminjamanId}"
+//}
 object DestinasiEdit : DestinasiNavigasi {
-    override val route = "edit"
+    override val route = "edit_peminjaman" // Pastikan string ini unik
     override val titleRes = "Edit Peminjaman"
-    const val peminjamanId = "itemId"
+    const val peminjamanId = "peminjamanId" // Key Argumen
     val routeWithArgs = "$route/{$peminjamanId}"
 }
 
@@ -106,3 +112,5 @@ object DestinasiKategoriEdit : DestinasiNavigasi {
     const val kategoriId = "kategoriId"
     val routeWithArgs = "$route/{$kategoriId}"
 }
+
+

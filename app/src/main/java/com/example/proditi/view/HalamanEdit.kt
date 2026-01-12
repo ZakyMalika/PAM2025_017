@@ -24,7 +24,28 @@ fun HalamanEdit(
         Column(
             modifier = Modifier.padding(innerPadding).padding(16.dp)
         ) {
-            // Field Edit (Gunakan komponen input yang sama dengan Entry)
+
+            DropdownMenuField(
+                label = "Pilih Barang",
+                options = viewModel.listBarang.map { it.id.toString() to it.namaBarang },
+                selectedId = if (viewModel.uiStatePeminjaman.detailPeminjaman.barangId == 0) "" else viewModel.uiStatePeminjaman.detailPeminjaman.barangId.toString(),
+                onSelected = { id ->
+                    viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(barangId = id.toInt()))
+                }
+            )
+            Spacer(Modifier.height(8.dp))
+
+            // Dropdown Peminjam
+            DropdownMenuField(
+                label = "Pilih Peminjam",
+                options = viewModel.listPeminjam.map { it.id.toString() to it.namaPeminjam },
+                selectedId = if (viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId == 0) "" else viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId.toString(),
+                onSelected = { id ->
+                    viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(peminjamId = id.toInt()))
+                }
+            )
+            Spacer(Modifier.height(8.dp))
+
             OutlinedTextField(
                 value = viewModel.uiStatePeminjaman.detailPeminjaman.tanggalPinjam,
                 onValueChange = { viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(tanggalPinjam = it)) },
@@ -33,6 +54,8 @@ fun HalamanEdit(
             )
 
             Spacer(Modifier.height(8.dp))
+
+
 
             OutlinedTextField(
                 value = viewModel.uiStatePeminjaman.detailPeminjaman.tanggalKembali,

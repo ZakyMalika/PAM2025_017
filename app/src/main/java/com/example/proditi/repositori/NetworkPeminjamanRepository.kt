@@ -14,7 +14,6 @@ class NetworkPeminjamanRepository(
     }
 
     override suspend fun getPeminjamanById(id: Int): Peminjaman {
-        // PERBAIKAN: Ambil .data dari PeminjamanDetailResponse
         return peminjamanApiService.getPeminjamanById(id).data
     }
 
@@ -28,10 +27,7 @@ class NetworkPeminjamanRepository(
 
     override suspend fun deletePeminjaman(id: Int) {
         try {
-            val response = peminjamanApiService.deletePeminjaman(id)
-            if (!response.isSuccessful) {
-                throw IOException("Gagal menghapus data peminjaman. Code: ${response.code()}")
-            }
+            peminjamanApiService.deletePeminjaman(id)
         } catch (e: Exception) {
             throw e
         }

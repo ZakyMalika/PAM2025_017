@@ -3,12 +3,6 @@ package com.example.proditi.modeldata
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class PeminjamanResponse(
-    val status: Boolean,
-    val message: String,
-    val data: List<Peminjaman>
-)
 
 @Serializable
 data class BarangResponse(
@@ -107,3 +101,23 @@ data class PeminjamanDetailResponse(
     val message: String,
     val data: Peminjaman
 )
+@Serializable
+data class PeminjamanResponse(
+    val status: Boolean,
+    val message: String,
+    val data: List<Peminjaman>
+)
+
+@Serializable
+data class AllPeminjamanResponse(
+    val status: Boolean,
+    val message: String,
+    val data: List<Peminjaman>
+)
+
+//@Serializable
+//data class PeminjamanDetailResponse(
+//    val status: Boolean,
+//    val message: String,
+//    val data: Peminjaman
+//)

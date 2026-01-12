@@ -17,6 +17,7 @@ import com.example.proditi.uicontroller.view.peminjam.HalamanPeminjamDetail
 import com.example.proditi.uicontroller.view.peminjam.HalamanPeminjamEdit
 import com.example.proditi.uicontroller.view.peminjam.HalamanPeminjamEntry
 import com.example.proditi.uicontroller.view.peminjam.HalamanPeminjamHome
+import com.example.proditi.uicontroller.view.HalamanDetail
 
 
 @Composable
@@ -191,6 +192,40 @@ fun PengelolaHalaman(
             HalamanPeminjamEdit(
                 navigateBack = { navController.popBackStack() }
             )
+        }
+
+
+
+        composable(
+            route = DestinasiEdit.routeWithArgs, // Gunakan routeWithArgs
+            arguments = listOf(navArgument(DestinasiEdit.peminjamanId) {
+                type = NavType.IntType
+            })
+        ) {
+            // Panggil Halaman Edit Peminjaman di sini
+            // Pastikan Anda sudah membuat composable HalamanEditPeminjaman
+            HalamanEdit(
+                navigateBack = { navController.popBackStack() },
+                // onUpdateSuccess = { navController.popBackStack() } // Opsional jika ada
+            )
+        }
+
+        composable(
+            route = DestinasiDetail.routeWithArgs,
+            arguments = listOf(navArgument(DestinasiDetail.peminjamanId) {
+                type = NavType.IntType
+            })
+        ) {
+            HalamanDetail(
+                navigateBack = { navController.popBackStack() },
+
+                // PERHATIKAN INI:
+                navigateToEdit = { id ->
+                    // Harus: "edit_peminjaman/123"
+                    navController.navigate("${DestinasiEdit.route}/$id")
+                }
+            )
+
         }
     }
 }

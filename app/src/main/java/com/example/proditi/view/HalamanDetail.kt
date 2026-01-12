@@ -5,11 +5,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.proditi.modeldata.Peminjaman
 import com.example.proditi.viewmodel.DetailUiState
 import com.example.proditi.viewmodel.DetailViewModel
 import com.example.proditi.viewmodel.provider.PenyediaViewModel
@@ -24,7 +22,13 @@ fun HalamanDetail(
     val uiState by viewModel.detailUiState.collectAsState()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Detail Peminjaman") }) },
+        topBar = {
+            ProdiTITopAppBar(
+                title = "Detail Peminjaman",
+                canNavigateBack = true,
+                navigateUp = navigateBack
+            )
+        },
         floatingActionButton = {
             if (uiState is DetailUiState.Success) {
                 val id = (uiState as DetailUiState.Success).peminjaman.id
@@ -35,17 +39,25 @@ fun HalamanDetail(
         }
     ) { innerPadding ->
         when (val state = uiState) {
-            is DetailUiState.Loading -> Text("Loading...", Modifier.padding(innerPadding))
-            is DetailUiState.Error -> Text("Error saat memuat data", Modifier.padding(innerPadding))
+            is DetailUiState.Loading -> Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                CircularProgressIndicator()
+            }
+            is DetailUiState.Error -> Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                Text("Error saat memuat data")
+            }
             is DetailUiState.Success -> {
                 Column(
                     modifier = Modifier.padding(innerPadding).padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    DetailRow("Nama Barang", state.peminjaman.barang?.namaBarang ?: "-")
-                    DetailRow("Peminjam", state.peminjaman.peminjam?.namaPeminjam ?: "-")
-                    DetailRow("Tanggal Pinjam", state.peminjaman.tanggalPinjam)
-                    DetailRow("Tanggal Kembali", state.peminjaman.tanggalKembali)
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            DetailRow("Nama Barang", state.peminjaman.barang?.namaBarang ?: "-")
+                            DetailRow("Peminjam", state.peminjaman.peminjam?.namaPeminjam ?: "-")
+                            DetailRow("Tanggal Pinjam", state.peminjaman.tanggalPinjam)
+                            DetailRow("Tanggal Kembali", state.peminjaman.tanggalKembali)
+                        }
+                    }
 
                     Spacer(Modifier.height(24.dp))
                     Button(
@@ -67,7 +79,7 @@ fun HalamanDetail(
 @Composable
 fun DetailRow(label: String, value: String) {
     Column {
-        Text(text = label, style = MaterialTheme.typography.labelMedium)
+        Text(text = label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
         Text(text = value, style = MaterialTheme.typography.bodyLarge)
     }
 }
