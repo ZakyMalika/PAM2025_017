@@ -12,6 +12,7 @@ import com.example.proditi.viewmodel.barang.BarangDetailViewModel
 //import com.example.proditi.viewmodel.kategori.*
 import com.example.proditi.viewmodel.peminjam.* // Pastikan import ini ada
 import com.example.proditi.viewmodel.peminjam.PeminjamDetailViewModel
+import com.example.proditi.viewmodel.auth.LoginViewModel
 
 object PenyediaViewModel {
     val Factory = viewModelFactory {
@@ -54,6 +55,11 @@ object PenyediaViewModel {
         initializer { KategoriEntryViewModel(aplikasiPeminjaman().container.peminjamanRepository) }
         initializer { KategoriDetailViewModel(createSavedStateHandle(), aplikasiPeminjaman().container.peminjamanRepository) }
         initializer { KategoriEditViewModel(createSavedStateHandle(), aplikasiPeminjaman().container.peminjamanRepository) }
+
+//        user
+        initializer {
+            LoginViewModel(aplikasiPeminjaman().container.peminjamanRepository)
+        }
     }
 }
 

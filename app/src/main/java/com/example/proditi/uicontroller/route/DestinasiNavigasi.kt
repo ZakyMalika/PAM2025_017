@@ -5,6 +5,11 @@ interface DestinasiNavigasi {
     val titleRes: String
 }
 
+object DestinasiLogin : DestinasiNavigasi {
+    override val route = "login"
+    override val titleRes = "Login"
+}
+
 object DestinasiDashboard : DestinasiNavigasi {
     override val route = "dashboard"
     override val titleRes = "Dashboard Prodi TI"
@@ -25,16 +30,10 @@ object DestinasiDetail : DestinasiNavigasi {
     const val peminjamanId = "itemId"
     val routeWithArgs = "$route/{$peminjamanId}"
 }
-//object DestinasiEdit : DestinasiNavigasi {
-//    override val route = "edit"
-//    override val titleRes = "Edit Peminjaman"
-//    const val peminjamanId = "itemId"
-//    val routeWithArgs = "$route/{$peminjamanId}"
-//}
 object DestinasiEdit : DestinasiNavigasi {
-    override val route = "edit_peminjaman" // Pastikan string ini unik
+    override val route = "edit"
     override val titleRes = "Edit Peminjaman"
-    const val peminjamanId = "peminjamanId" // Key Argumen
+    const val peminjamanId = "itemId"
     val routeWithArgs = "$route/{$peminjamanId}"
 }
 
@@ -63,33 +62,24 @@ object DestinasiBarangEdit : DestinasiNavigasi {
 // Destinasi Peminjam
 object DestinasiPeminjamHome : DestinasiNavigasi {
     override val route = "peminjam_home"
-    override val titleRes = "Daftar Peminjam"
+    override val titleRes = "Data Peminjam"
 }
-
 object DestinasiPeminjamEntry : DestinasiNavigasi {
     override val route = "peminjam_entry"
     override val titleRes = "Tambah Peminjam"
 }
-
 object DestinasiPeminjamDetail : DestinasiNavigasi {
     override val route = "peminjam_detail"
     override val titleRes = "Detail Peminjam"
-    const val peminjamId = "peminjamId" // KUNCI UTAMA: String ini harus sama
+    const val peminjamId = "peminjamId"
     val routeWithArgs = "$route/{$peminjamId}"
 }
-
 object DestinasiPeminjamEdit : DestinasiNavigasi {
     override val route = "peminjam_edit"
     override val titleRes = "Edit Peminjam"
     const val peminjamId = "peminjamId"
     val routeWithArgs = "$route/{$peminjamId}"
 }
-
-
-
-
-
-
 
 // Destinasi Kategori
 object DestinasiKategoriHome : DestinasiNavigasi {
@@ -112,5 +102,3 @@ object DestinasiKategoriEdit : DestinasiNavigasi {
     const val kategoriId = "kategoriId"
     val routeWithArgs = "$route/{$kategoriId}"
 }
-
-

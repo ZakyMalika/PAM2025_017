@@ -124,4 +124,9 @@ class NetworkPeminjamanRepository(
             throw e
         }
     }
+
+//    user
+    override suspend fun login(loginRequest: LoginRequest): LoginResponse {
+        return peminjamanApiService.login(loginRequest)
+    }
 }

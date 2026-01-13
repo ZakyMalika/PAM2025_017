@@ -95,4 +95,10 @@ interface PeminjamanService {
 
     @DELETE("kategori/{id}")
     suspend fun deleteKategori(@Path("id") id: Int): Response<Unit>
+
+//    user
+    @POST("login")
+    suspend fun login(@Body request: LoginRequest): LoginResponse
+
+
 }

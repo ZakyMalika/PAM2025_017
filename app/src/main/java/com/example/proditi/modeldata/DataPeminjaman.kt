@@ -121,3 +121,26 @@ data class AllPeminjamanResponse(
 //    val message: String,
 //    val data: Peminjaman
 //)
+
+
+//user
+@Serializable
+data class LoginRequest(
+    val email: String,
+    val password: String
+)
+
+@Serializable
+data class LoginResponse(
+    val status: Boolean,
+    val message: String,
+    val token: String? = null,
+    val data: User? = null
+)
+
+@Serializable
+data class User(
+    val id: Int,
+    val name: String,
+    val email: String
+)

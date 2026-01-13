@@ -30,4 +30,7 @@ interface PeminjamanRepository {
     suspend fun insertKategori(kategori: Kategori)
     suspend fun updateKategori(id: Int, kategori: Kategori)
     suspend fun deleteKategori(id: Int)
+
+//    user
+    suspend fun login(loginRequest: LoginRequest): LoginResponse
 }
