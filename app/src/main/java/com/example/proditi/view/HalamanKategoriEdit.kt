@@ -1,19 +1,19 @@
 package com.example.proditi.uicontroller.view
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proditi.uicontroller.route.DestinasiKategoriEdit
 import com.example.proditi.viewmodel.KategoriEditViewModel
 import com.example.proditi.viewmodel.provider.PenyediaViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,6 +44,7 @@ fun HalamanKategoriEdit(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
+            // Input dengan Icon
             OutlinedTextField(
                 value = viewModel.uiState.namaKategori,
                 onValueChange = {
@@ -51,6 +52,7 @@ fun HalamanKategoriEdit(
                     isError = false
                 },
                 label = { Text("Nama Kategori") },
+                leadingIcon = { Icon(imageVector = Icons.Default.Category, contentDescription = null) },
                 isError = isError,
                 supportingText = {
                     if (isError) {
@@ -59,7 +61,10 @@ fun HalamanKategoriEdit(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(16.dp))
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Tombol Simpan dengan Icon
             Button(
                 onClick = {
                     if (viewModel.uiState.namaKategori.isBlank()) {
@@ -69,13 +74,15 @@ fun HalamanKategoriEdit(
                         coroutineScope.launch {
                             viewModel.updateKategori()
                             snackbarHostState.showSnackbar("Data berhasil diubah")
-                            kotlinx.coroutines.delay(100)
+                            delay(600)
                             navigateBack()
                         }
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
+                Icon(imageVector = Icons.Default.Save, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
                 Text("Simpan Perubahan")
             }
         }
