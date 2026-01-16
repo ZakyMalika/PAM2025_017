@@ -3,6 +3,10 @@ package com.example.proditi.uicontroller.view.barang
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -35,11 +39,7 @@ fun HalamanBarangEdit(
                     IconButton(onClick = navigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                }
             )
         }
     ) { innerPadding ->
@@ -58,6 +58,7 @@ fun HalamanBarangEdit(
                     isError = false
                 },
                 label = { Text("Nama Barang") },
+                leadingIcon = { Icon(Icons.Default.Inventory, contentDescription = null) },
                 isError = isError && viewModel.uiState.namaBarang.isBlank(),
                 supportingText = { if (isError && viewModel.uiState.namaBarang.isBlank()) Text("Nama barang wajib diisi", color = MaterialTheme.colorScheme.error) },
                 modifier = Modifier.fillMaxWidth()
@@ -71,29 +72,23 @@ fun HalamanBarangEdit(
                     isError = false
                 },
                 label = { Text("Kondisi (Baik/Rusak)") },
+                leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
                 isError = isError && viewModel.uiState.kondisi.isBlank(),
                 supportingText = { if (isError && viewModel.uiState.kondisi.isBlank()) Text("Kondisi wajib diisi", color = MaterialTheme.colorScheme.error) },
                 modifier = Modifier.fillMaxWidth()
             )
 
             // KATEGORI
-            Column {
-                DropdownKategori(
-                    kategoriList = viewModel.kategoriList,
-                    selectedKategoriId = viewModel.uiState.kategoriId,
-                    onKategoriSelected = { selectedId ->
-                        viewModel.updateUiState(viewModel.uiState.copy(kategoriId = selectedId))
-                        isError = false
-                    }
-                )
-                if (isError && viewModel.uiState.kategoriId == null) {
-                    Text(
-                        text = "Kategori wajib dipilih",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
-                    )
+            DropdownKategoriEdit(
+                kategoriList = viewModel.kategoriList,
+                selectedKategoriId = viewModel.uiState.kategoriId,
+                onKategoriSelected = { selectedId ->
+                    viewModel.updateUiState(viewModel.uiState.copy(kategoriId = selectedId))
+                    isError = false
                 }
+            )
+            if (isError && viewModel.uiState.kategoriId == null) {
+                Text("Kategori wajib dipilih", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
 
             // TOMBOL UPDATE
@@ -107,7 +102,7 @@ fun HalamanBarangEdit(
                         viewModel.updateBarang(onSuccess = {
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar("Data Barang Berhasil Diupdate")
-                                delay(100)
+                                delay(600)
                                 navigateBack()
                             }
                         })
@@ -115,16 +110,18 @@ fun HalamanBarangEdit(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
+                Icon(Icons.Default.Save, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
                 Text("Update Barang")
             }
         }
     }
 }
 
-// Gunakan kembali fungsi DropdownKategori yang sudah ada di file ini atau buat di file terpisah
+// Reuse fungsi dropdown tapi tambah icon
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropdownKategori(
+fun DropdownKategoriEdit(
     kategoriList: List<Kategori>,
     selectedKategoriId: Int?,
     onKategoriSelected: (Int) -> Unit
@@ -132,29 +129,21 @@ fun DropdownKategori(
     var expanded by remember { mutableStateOf(false) }
     val selectedKategoriName = kategoriList.find { it.id == selectedKategoriId }?.namaKategori ?: "Pilih Kategori"
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         OutlinedTextField(
             value = selectedKategoriName,
             onValueChange = {},
             readOnly = true,
             label = { Text("Kategori") },
+            leadingIcon = { Icon(Icons.Default.Category, contentDescription = null) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.menuAnchor().fillMaxWidth()
         )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             kategoriList.forEach { kategori ->
                 DropdownMenuItem(
                     text = { Text(text = kategori.namaKategori) },
-                    onClick = {
-                        onKategoriSelected(kategori.id)
-                        expanded = false
-                    }
+                    onClick = { onKategoriSelected(kategori.id); expanded = false }
                 )
             }
         }

@@ -3,6 +3,10 @@ package com.example.proditi.uicontroller.view.barang
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -24,7 +28,6 @@ fun HalamanBarangEntry(
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // State Validasi
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
@@ -33,10 +36,6 @@ fun HalamanBarangEntry(
         topBar = {
             TopAppBar(
                 title = { Text(DestinasiBarangEntry.titleRes) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ),
                 navigationIcon = {
                     IconButton(onClick = navigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -60,8 +59,12 @@ fun HalamanBarangEntry(
                     isError = false
                 },
                 label = { Text("Nama Barang") },
+                leadingIcon = { Icon(Icons.Default.Inventory, contentDescription = null) },
                 isError = isError && viewModel.uiState.namaBarang.isBlank(),
-                supportingText = { if (isError && viewModel.uiState.namaBarang.isBlank()) Text("Nama barang wajib diisi", color = MaterialTheme.colorScheme.error) },
+                supportingText = {
+                    if (isError && viewModel.uiState.namaBarang.isBlank())
+                        Text("Nama barang wajib diisi", color = MaterialTheme.colorScheme.error)
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -73,13 +76,16 @@ fun HalamanBarangEntry(
                     isError = false
                 },
                 label = { Text("Kondisi (Baik/Rusak)") },
+                leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
                 isError = isError && viewModel.uiState.kondisi.isBlank(),
-                supportingText = { if (isError && viewModel.uiState.kondisi.isBlank()) Text("Kondisi wajib diisi", color = MaterialTheme.colorScheme.error) },
+                supportingText = {
+                    if (isError && viewModel.uiState.kondisi.isBlank())
+                        Text("Kondisi wajib diisi", color = MaterialTheme.colorScheme.error)
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // KATEGORI (DROPDOWN)
-            // Kita tambahkan validasi manual di sini (border merah belum didukung native dropdown, jadi pakai text error di bawahnya)
+            // KATEGORI
             Column {
                 DropdownKategoriEntry(
                     kategoriList = viewModel.kategoriList,
@@ -99,6 +105,8 @@ fun HalamanBarangEntry(
                 }
             }
 
+            Spacer(modifier = Modifier.height(8.dp))
+
             // TOMBOL SIMPAN
             Button(
                 onClick = {
@@ -112,7 +120,7 @@ fun HalamanBarangEntry(
                         viewModel.saveBarang(onSuccess = {
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar("Data Barang Berhasil Disimpan")
-                                delay(100)
+                                delay(600)
                                 navigateBack()
                             }
                         })
@@ -120,7 +128,9 @@ fun HalamanBarangEntry(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Simpan")
+                Icon(Icons.Default.Save, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Simpan Barang")
             }
         }
     }
@@ -145,6 +155,7 @@ fun DropdownKategoriEntry(
             onValueChange = {},
             readOnly = true,
             label = { Text("Kategori") },
+            leadingIcon = { Icon(Icons.Default.Category, contentDescription = null) }, // Tambah Icon
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.menuAnchor().fillMaxWidth()
         )
