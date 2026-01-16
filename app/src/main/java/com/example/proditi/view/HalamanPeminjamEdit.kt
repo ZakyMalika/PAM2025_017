@@ -4,6 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -13,6 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proditi.uicontroller.route.DestinasiPeminjamEdit
 import com.example.proditi.viewmodel.peminjam.PeminjamEditViewModel
 import com.example.proditi.viewmodel.provider.PenyediaViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,10 +27,13 @@ fun HalamanPeminjamEdit(
     viewModel: PeminjamEditViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(DestinasiPeminjamEdit.titleRes) },
@@ -52,11 +60,12 @@ fun HalamanPeminjamEdit(
                     isError = false
                 },
                 label = { Text("Nama Peminjam") },
+                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                 isError = isError && viewModel.uiState.namaPeminjam.isBlank(),
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // INPUT NIM/NIK (HANYA ANGKA)
+            // INPUT NIM
             OutlinedTextField(
                 value = viewModel.uiState.nim,
                 onValueChange = {
@@ -66,12 +75,13 @@ fun HalamanPeminjamEdit(
                     }
                 },
                 label = { Text("NIM / NIK") },
+                leadingIcon = { Icon(Icons.Default.CreditCard, contentDescription = null) },
                 isError = isError && viewModel.uiState.nim.isBlank(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // INPUT NO HP (HANYA ANGKA)
+            // INPUT NO HP
             OutlinedTextField(
                 value = viewModel.uiState.noHp,
                 onValueChange = {
@@ -81,6 +91,7 @@ fun HalamanPeminjamEdit(
                     }
                 },
                 label = { Text("No Telepon") },
+                leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
                 isError = isError && viewModel.uiState.noHp.isBlank(),
                 supportingText = { if (isError) Text(errorMessage, color = MaterialTheme.colorScheme.error) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -93,13 +104,21 @@ fun HalamanPeminjamEdit(
                         isError = true
                         errorMessage = "Semua data harus diisi!"
                     } else {
-                        coroutineScope.launch {
-                            viewModel.updatePeminjam(onSuccess = navigateBack)
-                        }
+                        viewModel.updatePeminjam(onSuccess = {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Peminjam Berhasil Diupdate")
+                                delay(600)
+                                navigateBack()
+                            }
+                        })
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("Update Peminjam") }
+            ) {
+                Icon(Icons.Default.Save, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Update Peminjam")
+            }
         }
     }
 }
