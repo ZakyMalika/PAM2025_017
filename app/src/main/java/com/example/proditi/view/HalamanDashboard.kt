@@ -1,32 +1,34 @@
 package com.example.proditi.uicontroller.view
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Inventory
-import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.proditi.R // Pastikan import R ada jika ingin pakai gambar profil (opsional)
 import com.example.proditi.uicontroller.route.DestinasiBarangHome
 import com.example.proditi.uicontroller.route.DestinasiDashboard
 import com.example.proditi.uicontroller.route.DestinasiHome
@@ -39,45 +41,69 @@ fun HalamanDashboard(
     modifier: Modifier = Modifier
 ) {
     Scaffold(
-        // Kita tidak menggunakan TopAppBar standar agar bisa membuat Header custom yang lebih besar
+        containerColor = Color(0xFFF8F9FA) // Background abu-abu sangat muda (Clean look)
     ) { innerPadding ->
         Column(
             modifier = modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
         ) {
-            // 1. BAGIAN HEADER (Banner)
+            // 1. HEADER (Simple & Professional)
             DashboardHeader()
 
-            // 2. BAGIAN MENU GRID
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp)
+            // 2. BODY CONTENT (Scrollable)
+            LazyColumn(
+                contentPadding = PaddingValues(20.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                modifier = Modifier.fillMaxSize()
             ) {
-                Text(
-                    text = "Menu Utama",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+                // SECTION: RINGKASAN (Statistik Mockup)
+//                item {
+//                    Text(
+//                        text = "Ringkasan Hari Ini",
+//                        style = MaterialTheme.typography.titleMedium,
+//                        fontWeight = FontWeight.Bold,
+//                        color = MaterialTheme.colorScheme.onBackground
+//                    )
+//                    Spacer(modifier = Modifier.height(12.dp))
+////                    Row(
+////                        modifier = Modifier.fillMaxWidth(),
+////                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+////                    ) {
+////                        InfoCard(
+////                            title = "Total Aset",
+////                            value = "124",
+////                            color = Color(0xFF4CAF50),
+////                            modifier = Modifier.weight(1f)
+////                        )
+////                        InfoCard(
+////                            title = "Dipinjam",
+////                            value = "8",
+////                            color = Color(0xFFFF9800), // Orange
+////                            modifier = Modifier.weight(1f)
+////                        )
+////                    }
+//                }
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(menuItems) { item ->
-                        MenuCard(
-                            title = item.title,
-                            icon = item.icon,
-                            backgroundColor = item.color,
-                            onClick = { onMenuClick(item.route) }
-                        )
-                    }
+                // SECTION: MENU UTAMA
+                item {
+                    Text(
+                        text = "Kelola Data",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+
+                items(menuItems) { item ->
+                    WideMenuCard(
+                        menuItem = item,
+                        onClick = { onMenuClick(item.route) }
+                    )
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(30.dp)) // Padding bawah
                 }
             }
         }
@@ -86,159 +112,188 @@ fun HalamanDashboard(
 
 @Composable
 fun DashboardHeader() {
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp) // Header lebih tinggi
-            .clip(RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)) // Lengkungan di bawah
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.primaryContainer
-                    )
-                )
-            )
+            .background(Color.White)
+            .padding(horizontal = 24.dp, vertical = 24.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Hiasan Background (Lingkaran transparan)
+        Column {
+            Text(
+                text = "Halo, Admin",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "Prodi Teknologi Informasi",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+        }
+
+        // Avatar / Icon Profil
         Box(
             modifier = Modifier
-                .size(200.dp)
-                .align(Alignment.TopEnd)
-                .offset(x = 60.dp, y = (-40).dp)
+                .size(50.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.1f))
-        )
-
-        Column(
-            modifier = Modifier
-                .padding(24.dp)
-                .align(Alignment.CenterStart)
+                .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center
         ) {
-            // Icon Profil Kecil / Avatar
             Icon(
-                imageVector = Icons.Default.Inventory2,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(48.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Selamat Datang,",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-            )
-            Text(
-                text = "Admin Prodi TI",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-            Text(
-                text = "Kelola inventaris dengan mudah",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                imageVector = Icons.Default.People,
+                contentDescription = "Profil",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(28.dp)
             )
         }
     }
 }
 
 @Composable
-fun MenuCard(
+fun InfoCard(
     title: String,
-    icon: ImageVector,
-    backgroundColor: Color,
+    value: String,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = value,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+        }
+    }
+}
+
+@Composable
+fun WideMenuCard(
+    menuItem: MenuItem,
     onClick: () -> Unit
 ) {
     Card(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(140.dp), // Tinggi kartu fixed agar seragam
-        shape = RoundedCornerShape(24.dp), // Sudut lebih membulat
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            .height(85.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Hiasan warna di pojok kanan atas
+            // Icon Container
             Box(
                 modifier = Modifier
-                    .size(80.dp)
-                    .align(Alignment.TopEnd)
-                    .offset(x = 20.dp, y = (-20).dp)
-                    .clip(CircleShape)
-                    .background(backgroundColor.copy(alpha = 0.2f))
-            )
-
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(menuItem.color.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
             ) {
-                // Icon dalam lingkaran
-                Box(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape)
-                        .background(backgroundColor.copy(alpha = 0.1f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = backgroundColor,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-
-                // Judul Menu
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                Icon(
+                    imageVector = menuItem.icon,
+                    contentDescription = null,
+                    tint = menuItem.color,
+                    modifier = Modifier.size(26.dp)
                 )
             }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Texts
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = menuItem.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = menuItem.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+            }
+
+            // Arrow Icon
+            Icon(
+                imageVector = Icons.Default.ArrowForwardIos,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = Color.LightGray
+            )
         }
     }
 }
 
-// Data Class untuk Menu Item dengan Warna
+// Data Class Updated (Added Description)
 data class MenuItem(
     val title: String,
+    val description: String,
     val icon: ImageVector,
     val route: String,
     val color: Color
 )
 
-// Daftar Menu dengan Warna Spesifik
+// Menu Data
 val menuItems = listOf(
     MenuItem(
-        "Peminjaman",
+        "Transaksi Peminjaman",
+        "Catat barang masuk & keluar",
         Icons.Default.Assignment,
         DestinasiHome.route,
-        Color(0xFF4CAF50) // Hijau
+        Color(0xFF4CAF50) // Green
     ),
     MenuItem(
-        "Barang",
+        "Data Barang",
+        "Kelola inventaris aset prodi",
         Icons.Default.Inventory,
         DestinasiBarangHome.route,
-        Color(0xFF2196F3) // Biru
+        Color(0xFF2196F3) // Blue
     ),
     MenuItem(
-        "Peminjam",
+        "Data Peminjam",
+        "Daftar mahasiswa & dosen",
         Icons.Default.People,
         DestinasiPeminjamHome.route,
-        Color(0xFFFF9800) // Oranye
+        Color(0xFFFF9800) // Orange
     ),
     MenuItem(
-        "Kategori",
+        "Kategori Barang",
+        "Klasifikasi jenis aset",
         Icons.Default.Category,
         DestinasiKategoriHome.route,
-        Color(0xFF9C27B0) // Ungu
+        Color(0xFF9C27B0) // Purple
     )
 )
