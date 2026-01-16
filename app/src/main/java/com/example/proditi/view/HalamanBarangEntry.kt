@@ -12,6 +12,8 @@ import com.example.proditi.modeldata.Kategori
 import com.example.proditi.uicontroller.route.DestinasiBarangEntry
 import com.example.proditi.viewmodel.barang.BarangEntryViewModel
 import com.example.proditi.viewmodel.provider.PenyediaViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,7 +21,15 @@ fun HalamanBarangEntry(
     navigateBack: () -> Unit,
     viewModel: BarangEntryViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // State Validasi
+    var isError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(DestinasiBarangEntry.titleRes) },
@@ -27,13 +37,9 @@ fun HalamanBarangEntry(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
-                // --- TAMBAHKAN TOMBOL BACK DI SINI ---
                 navigationIcon = {
                     IconButton(onClick = navigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Kembali"
-                        )
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
                     }
                 }
             )
@@ -46,39 +52,73 @@ fun HalamanBarangEntry(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Input Nama Barang
+            // NAMA BARANG
             OutlinedTextField(
                 value = viewModel.uiState.namaBarang,
-                onValueChange = { viewModel.updateUiState(viewModel.uiState.copy(namaBarang = it)) },
+                onValueChange = {
+                    viewModel.updateUiState(viewModel.uiState.copy(namaBarang = it))
+                    isError = false
+                },
                 label = { Text("Nama Barang") },
+                isError = isError && viewModel.uiState.namaBarang.isBlank(),
+                supportingText = { if (isError && viewModel.uiState.namaBarang.isBlank()) Text("Nama barang wajib diisi", color = MaterialTheme.colorScheme.error) },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Input Kondisi
+            // KONDISI
             OutlinedTextField(
                 value = viewModel.uiState.kondisi,
-                onValueChange = { viewModel.updateUiState(viewModel.uiState.copy(kondisi = it)) },
+                onValueChange = {
+                    viewModel.updateUiState(viewModel.uiState.copy(kondisi = it))
+                    isError = false
+                },
                 label = { Text("Kondisi (Baik/Rusak)") },
+                isError = isError && viewModel.uiState.kondisi.isBlank(),
+                supportingText = { if (isError && viewModel.uiState.kondisi.isBlank()) Text("Kondisi wajib diisi", color = MaterialTheme.colorScheme.error) },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // DROPDOWN KATEGORI
-            DropdownKategoriEntry(
-                kategoriList = viewModel.kategoriList,
-                selectedKategoriId = viewModel.uiState.kategoriId,
-                onKategoriSelected = { selectedId ->
-                    viewModel.updateUiState(viewModel.uiState.copy(kategoriId = selectedId))
+            // KATEGORI (DROPDOWN)
+            // Kita tambahkan validasi manual di sini (border merah belum didukung native dropdown, jadi pakai text error di bawahnya)
+            Column {
+                DropdownKategoriEntry(
+                    kategoriList = viewModel.kategoriList,
+                    selectedKategoriId = viewModel.uiState.kategoriId,
+                    onKategoriSelected = { selectedId ->
+                        viewModel.updateUiState(viewModel.uiState.copy(kategoriId = selectedId))
+                        isError = false
+                    }
+                )
+                if (isError && viewModel.uiState.kategoriId == null) {
+                    Text(
+                        text = "Kategori wajib dipilih",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                    )
                 }
-            )
+            }
 
-            // Tombol Simpan
+            // TOMBOL SIMPAN
             Button(
-                onClick = { viewModel.saveBarang(onSuccess = navigateBack) },
-                modifier = Modifier.fillMaxWidth(),
-                // Tombol aktif jika semua field terisi
-                enabled = viewModel.uiState.namaBarang.isNotEmpty() &&
-                        viewModel.uiState.kondisi.isNotEmpty() &&
-                        viewModel.uiState.kategoriId != null
+                onClick = {
+                    if (viewModel.uiState.namaBarang.isBlank() ||
+                        viewModel.uiState.kondisi.isBlank() ||
+                        viewModel.uiState.kategoriId == null) {
+
+                        isError = true
+                        errorMessage = "Semua data wajib diisi!"
+                    } else {
+                        viewModel.saveBarang(onSuccess = {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Data Barang Berhasil Disimpan")
+                                delay(100)
+                                navigateBack()
+                            }
+                        })
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Simpan")
             }
@@ -86,7 +126,6 @@ fun HalamanBarangEntry(
     }
 }
 
-// Fungsi Dropdown Khusus Entry
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownKategoriEntry(
@@ -95,7 +134,6 @@ fun DropdownKategoriEntry(
     onKategoriSelected: (Int) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-
     val selectedKategoriName = kategoriList.find { it.id == selectedKategoriId }?.namaKategori ?: "Pilih Kategori"
 
     ExposedDropdownMenuBox(

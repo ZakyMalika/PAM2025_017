@@ -106,9 +106,6 @@ fun BarangCard(
                 Text(text = "Kondisi: ${barang.kondisi}", style = MaterialTheme.typography.bodyMedium)
                 Text(text = "Kategori: ${barang.kategori?.namaKategori ?: "-"}", style = MaterialTheme.typography.bodySmall)
             }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = MaterialTheme.colorScheme.error)
-            }
         }
     }
 }

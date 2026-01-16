@@ -2,6 +2,7 @@ package com.example.proditi.uicontroller.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,6 +12,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proditi.viewmodel.DetailUiState
 import com.example.proditi.viewmodel.DetailViewModel
 import com.example.proditi.viewmodel.provider.PenyediaViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,9 +22,19 @@ fun HalamanDetail(
     navigateToEdit: (Int) -> Unit,
     viewModel: DetailViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
+    // 1. AUTO REFRESH (Penting agar data terupdate setelah edit)
+    LaunchedEffect(Unit) {
+        viewModel.getById()
+    }
+
     val uiState by viewModel.detailUiState.collectAsState()
 
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             ProdiTITopAppBar(
                 title = "Detail Peminjaman",
@@ -61,10 +74,7 @@ fun HalamanDetail(
 
                     Spacer(Modifier.height(24.dp))
                     Button(
-                        onClick = {
-                            viewModel.deletePeminjaman()
-                            navigateBack()
-                        },
+                        onClick = { showDeleteDialog = true },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -73,6 +83,29 @@ fun HalamanDetail(
                 }
             }
         }
+    }
+
+    // DIALOG KONFIRMASI HAPUS
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Konfirmasi Hapus") },
+            text = { Text("Yakin ingin menghapus data ini?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    coroutineScope.launch {
+                        viewModel.deletePeminjaman()
+                        showDeleteDialog = false
+                        snackbarHostState.showSnackbar("Data Berhasil Dihapus")
+                        delay(600)
+                        navigateBack()
+                    }
+                }) { Text("Hapus", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Batal") }
+            }
+        )
     }
 }
 

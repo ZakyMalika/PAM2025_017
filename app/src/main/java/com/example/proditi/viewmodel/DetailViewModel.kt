@@ -27,26 +27,31 @@ class DetailViewModel(
     val detailUiState: StateFlow<DetailUiState> = _detailUiState
 
     init {
-        getPeminjaman()
+        getById()
     }
 
-    fun getPeminjaman() {
+    // Fungsi untuk mengambil data berdasarkan ID (Dipanggil oleh LaunchedEffect di UI)
+    fun getById() {
         viewModelScope.launch {
             _detailUiState.value = DetailUiState.Loading
-            _detailUiState.value = try {
+            try {
                 val data = repository.getPeminjamanById(peminjamanId)
-                DetailUiState.Success(data)
+                _detailUiState.value = DetailUiState.Success(data)
             } catch (e: Exception) {
-                DetailUiState.Error
+                e.printStackTrace()
+                _detailUiState.value = DetailUiState.Error
             }
         }
     }
 
-    fun deletePeminjaman() {
+    // Fungsi delete dengan callback onSuccess untuk navigasi
+    fun deletePeminjaman(onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
             try {
                 repository.deletePeminjaman(peminjamanId)
+                onSuccess() // Navigasi kembali hanya jika delete berhasil
             } catch (e: Exception) {
+                e.printStackTrace()
                 _detailUiState.value = DetailUiState.Error
             }
         }

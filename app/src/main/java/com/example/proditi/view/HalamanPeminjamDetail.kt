@@ -5,15 +5,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proditi.uicontroller.route.DestinasiPeminjamDetail
 import com.example.proditi.viewmodel.peminjam.PeminjamDetailUiState
 import com.example.proditi.viewmodel.peminjam.PeminjamDetailViewModel
 import com.example.proditi.viewmodel.provider.PenyediaViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,6 +25,13 @@ fun HalamanPeminjamDetail(
     navigateToEdit: (Int) -> Unit,
     viewModel: PeminjamDetailViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        viewModel.getPeminjamById()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -44,15 +54,15 @@ fun HalamanPeminjamDetail(
                 is PeminjamDetailUiState.Error -> Text("Gagal memuat detail", Modifier.align(Alignment.Center))
                 is PeminjamDetailUiState.Success -> {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Card(Modifier.fillMaxWidth()) {
+                        Card(Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(4.dp)) {
                             Column(Modifier.padding(16.dp)) {
-                                Text("Nama: ${state.peminjam.namaPeminjam}", style = MaterialTheme.typography.titleLarge)
-                                Text("Alamat: ${state.peminjam.nim}")
-                                Text("No Telp: ${state.peminjam.noHp}")
+                                DetailRow("Nama Peminjam", state.peminjam.namaPeminjam)
+                                DetailRow("NIM / NIK", state.peminjam.nim)
+                                DetailRow("No HP", state.peminjam.noHp)
                             }
                         }
                         Button(
-                            onClick = { viewModel.deletePeminjam(onSuccess = navigateBack) },
+                            onClick = { showDeleteDialog = true },
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                             modifier = Modifier.fillMaxWidth()
                         ) { Text("Hapus Peminjam") }
@@ -60,5 +70,32 @@ fun HalamanPeminjamDetail(
                 }
             }
         }
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Konfirmasi Hapus") },
+            text = { Text("Apakah Anda yakin ingin menghapus data peminjam ini?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    coroutineScope.launch {
+                        viewModel.deletePeminjam(onSuccess = navigateBack)
+                        showDeleteDialog = false
+                    }
+                }) { Text("Hapus", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Batal") }
+            }
+        )
+    }
+}
+
+@Composable
+fun DetailRow(label: String, value: String) {
+    Column(Modifier.padding(vertical = 4.dp)) {
+        Text(text = label, fontSize = 12.sp, color = MaterialTheme.colorScheme.secondary)
+        Text(text = value, fontSize = 18.sp, fontWeight = FontWeight.Bold)
     }
 }

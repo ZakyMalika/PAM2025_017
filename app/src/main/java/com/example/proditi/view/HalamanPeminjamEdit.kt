@@ -1,14 +1,19 @@
 package com.example.proditi.uicontroller.view.peminjam
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proditi.uicontroller.route.DestinasiPeminjamEdit
 import com.example.proditi.viewmodel.peminjam.PeminjamEditViewModel
 import com.example.proditi.viewmodel.provider.PenyediaViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -16,30 +21,83 @@ fun HalamanPeminjamEdit(
     navigateBack: () -> Unit,
     viewModel: PeminjamEditViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    var isError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
     Scaffold(
-        topBar = { TopAppBar(title = { Text(DestinasiPeminjamEdit.titleRes) }) }
+        topBar = {
+            TopAppBar(
+                title = { Text(DestinasiPeminjamEdit.titleRes) },
+                navigationIcon = {
+                    IconButton(onClick = navigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        }
     ) { innerPadding ->
-        Column(Modifier.padding(innerPadding).padding(16.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Column(
+            Modifier
+                .padding(innerPadding)
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // INPUT NAMA
             OutlinedTextField(
                 value = viewModel.uiState.namaPeminjam,
-                onValueChange = { viewModel.updateUiState(viewModel.uiState.copy(namaPeminjam = it)) },
+                onValueChange = {
+                    viewModel.updateUiState(viewModel.uiState.copy(namaPeminjam = it))
+                    isError = false
+                },
                 label = { Text("Nama Peminjam") },
+                isError = isError && viewModel.uiState.namaPeminjam.isBlank(),
                 modifier = Modifier.fillMaxWidth()
             )
+
+            // INPUT NIM/NIK (HANYA ANGKA)
             OutlinedTextField(
                 value = viewModel.uiState.nim,
-                onValueChange = { viewModel.updateUiState(viewModel.uiState.copy(nim = it)) },
-                label = { Text("Alamat") },
+                onValueChange = {
+                    if (it.all { char -> char.isDigit() }) {
+                        viewModel.updateUiState(viewModel.uiState.copy(nim = it))
+                        isError = false
+                    }
+                },
+                label = { Text("NIM / NIK") },
+                isError = isError && viewModel.uiState.nim.isBlank(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
+
+            // INPUT NO HP (HANYA ANGKA)
             OutlinedTextField(
                 value = viewModel.uiState.noHp,
-                onValueChange = { viewModel.updateUiState(viewModel.uiState.copy(noHp = it)) },
+                onValueChange = {
+                    if (it.all { char -> char.isDigit() }) {
+                        viewModel.updateUiState(viewModel.uiState.copy(noHp = it))
+                        isError = false
+                    }
+                },
                 label = { Text("No Telepon") },
+                isError = isError && viewModel.uiState.noHp.isBlank(),
+                supportingText = { if (isError) Text(errorMessage, color = MaterialTheme.colorScheme.error) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 modifier = Modifier.fillMaxWidth()
             )
+
             Button(
-                onClick = { viewModel.updatePeminjam(onSuccess = navigateBack) },
+                onClick = {
+                    if (viewModel.uiState.namaPeminjam.isBlank() || viewModel.uiState.nim.isBlank() || viewModel.uiState.noHp.isBlank()) {
+                        isError = true
+                        errorMessage = "Semua data harus diisi!"
+                    } else {
+                        coroutineScope.launch {
+                            viewModel.updatePeminjam(onSuccess = navigateBack)
+                        }
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Update Peminjam") }
         }

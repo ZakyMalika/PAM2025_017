@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import com.example.proditi.uicontroller.view.*
 import com.example.proditi.uicontroller.view.barang.*
 import com.example.proditi.uicontroller.view.peminjam.*
+import com.example.proditi.uicontroller.view.peminjaman.HalamanHome
 import com.example.proditi.view.auth.HalamanLogin
 
 @Composable
@@ -47,7 +48,7 @@ fun PengelolaHalaman(
         // --- SECTION PEMINJAMAN ---
         composable(DestinasiHome.route) {
             HalamanHome(
-                navigateToItemEntry = { navController.navigate(DestinasiEntry.route) },
+                navigateToEntry = { navController.navigate(DestinasiEntry.route) },
                 onDetailClick = { itemId ->
                     navController.navigate("${DestinasiDetail.route}/$itemId")
                 },

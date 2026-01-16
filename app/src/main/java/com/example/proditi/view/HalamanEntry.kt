@@ -1,6 +1,10 @@
 package com.example.proditi.uicontroller.view
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -9,7 +13,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proditi.uicontroller.route.DestinasiEntry
 import com.example.proditi.viewmodel.EntryViewModel
 import com.example.proditi.viewmodel.provider.PenyediaViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -18,8 +25,14 @@ fun HalamanEntry(
     viewModel: EntryViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // State untuk Validasi
+    var isError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             ProdiTITopAppBar(
                 title = DestinasiEntry.titleRes,
@@ -40,6 +53,7 @@ fun HalamanEntry(
                 label = "Pilih Barang",
                 options = viewModel.listBarang.map { it.id.toString() to it.namaBarang },
                 selectedId = if (viewModel.uiStatePeminjaman.detailPeminjaman.barangId == 0) "" else viewModel.uiStatePeminjaman.detailPeminjaman.barangId.toString(),
+                isError = isError && viewModel.uiStatePeminjaman.detailPeminjaman.barangId == 0,
                 onSelected = { id ->
                     viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(barangId = id.toInt()))
                 }
@@ -50,33 +64,59 @@ fun HalamanEntry(
                 label = "Pilih Peminjam",
                 options = viewModel.listPeminjam.map { it.id.toString() to it.namaPeminjam },
                 selectedId = if (viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId == 0) "" else viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId.toString(),
+                isError = isError && viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId == 0,
                 onSelected = { id ->
                     viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(peminjamId = id.toInt()))
                 }
             )
 
-            OutlinedTextField(
+            // Date Picker: Tanggal Pinjam
+            DatePickerField(
+                label = "Tanggal Pinjam",
                 value = viewModel.uiStatePeminjaman.detailPeminjaman.tanggalPinjam,
-                onValueChange = { viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(tanggalPinjam = it)) },
-                label = { Text("Tanggal Pinjam (YYYY-MM-DD)") },
-                modifier = Modifier.fillMaxWidth()
+                onDateSelected = { date ->
+                    viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(tanggalPinjam = date))
+                },
+                isError = isError && viewModel.uiStatePeminjaman.detailPeminjaman.tanggalPinjam.isBlank()
             )
 
-            OutlinedTextField(
+            // Date Picker: Tanggal Kembali
+            DatePickerField(
+                label = "Tanggal Kembali",
                 value = viewModel.uiStatePeminjaman.detailPeminjaman.tanggalKembali,
-                onValueChange = { viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(tanggalKembali = it)) },
-                label = { Text("Tanggal Kembali (YYYY-MM-DD)") },
-                modifier = Modifier.fillMaxWidth()
+                onDateSelected = { date ->
+                    viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(tanggalKembali = date))
+                },
+                isError = isError && viewModel.uiStatePeminjaman.detailPeminjaman.tanggalKembali.isBlank()
             )
+
+            if (isError) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
 
             Button(
                 onClick = {
-                    coroutineScope.launch {
-                        viewModel.savePeminjaman()
-                        navigateBack()
+                    // VALIDASI MANUAL
+                    if (viewModel.uiStatePeminjaman.detailPeminjaman.barangId == 0 ||
+                        viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId == 0 ||
+                        viewModel.uiStatePeminjaman.detailPeminjaman.tanggalPinjam.isBlank() ||
+                        viewModel.uiStatePeminjaman.detailPeminjaman.tanggalKembali.isBlank()
+                    ) {
+                        isError = true
+                        errorMessage = "Semua data wajib diisi!"
+                    } else {
+                        coroutineScope.launch {
+                            viewModel.savePeminjaman()
+                            snackbarHostState.showSnackbar("Data Berhasil Disimpan")
+                            delay(600)
+                            navigateBack()
+                        }
                     }
                 },
-                enabled = viewModel.uiStatePeminjaman.isEntryValid,
                 modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
             ) {
                 Text("Simpan Peminjaman")
@@ -85,12 +125,15 @@ fun HalamanEntry(
     }
 }
 
+// --- Helper Components (Dropdown & DatePicker) ---
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownMenuField(
     label: String,
-    options: List<Pair<String, String>>, // Pair(ID, DisplayName)
+    options: List<Pair<String, String>>,
     selectedId: String,
+    isError: Boolean = false,
     onSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -107,6 +150,7 @@ fun DropdownMenuField(
             readOnly = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            isError = isError,
             modifier = Modifier.menuAnchor().fillMaxWidth()
         )
 
@@ -123,6 +167,61 @@ fun DropdownMenuField(
                     }
                 )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerField(
+    label: String,
+    value: String,
+    onDateSelected: (String) -> Unit,
+    isError: Boolean = false
+) {
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = {},
+        readOnly = true,
+        label = { Text(label) },
+        trailingIcon = {
+            IconButton(onClick = { showDatePicker = true }) {
+                Icon(Icons.Default.DateRange, contentDescription = "Pilih Tanggal")
+            }
+        },
+        isError = isError,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { showDatePicker = true },
+        enabled = false, // Disable manual typing
+        colors = OutlinedTextFieldDefaults.colors(
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledBorderColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline,
+            disabledLabelColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    )
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        onDateSelected(dateFormatter.format(Date(millis)))
+                    }
+                    showDatePicker = false
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 }

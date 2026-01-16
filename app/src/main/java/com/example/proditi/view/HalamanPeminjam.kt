@@ -29,6 +29,7 @@ fun HalamanPeminjamHome(
     onDetailClick: (Int) -> Unit,
     viewModel: PeminjamHomeViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
+    // Auto-refresh data setiap kali halaman ini aktif
     LaunchedEffect(Unit) { viewModel.getPeminjam() }
 
     Scaffold(
@@ -52,13 +53,17 @@ fun HalamanPeminjamHome(
             is PeminjamUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
             is PeminjamUiState.Error -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Gagal memuat data") }
             is PeminjamUiState.Success -> {
-                LazyColumn(modifier = Modifier.padding(innerPadding).padding(16.dp)) {
-                    items(state.peminjam) { item ->
-                        PeminjamCard(
-                            peminjam = item,
-                            onClick = { onDetailClick(item.id) },
-                            onDelete = { viewModel.deletePeminjam(item.id) }
-                        )
+                if (state.peminjam.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Data Peminjam Kosong") }
+                } else {
+                    LazyColumn(modifier = Modifier.padding(innerPadding).padding(16.dp)) {
+                        items(state.peminjam) { item ->
+                            PeminjamCard(
+                                peminjam = item,
+                                onClick = { onDetailClick(item.id) },
+                                onDelete = { viewModel.deletePeminjam(item.id) }
+                            )
+                        }
                     }
                 }
             }
@@ -73,11 +78,9 @@ fun PeminjamCard(peminjam: Peminjam, onClick: () -> Unit, onDelete: () -> Unit) 
             Column(Modifier.weight(1f)) {
                 Text(text = peminjam.namaPeminjam, style = MaterialTheme.typography.titleMedium)
                 Text(text = "NIM: ${peminjam.nim}", style = MaterialTheme.typography.bodyMedium)
-                Text(text = peminjam.noHp, style = MaterialTheme.typography.bodyMedium)
+                Text(text = "HP: ${peminjam.noHp}", style = MaterialTheme.typography.bodySmall)
             }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
-            }
+
         }
     }
 }
