@@ -30,6 +30,9 @@ fun HalamanLogin(
     val uiState = viewModel.uiState
     var passwordVisible by remember { mutableStateOf(false) }
 
+    // State untuk Validasi Input Kosong
+    var isError by remember { mutableStateOf(false) }
+
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
@@ -42,7 +45,7 @@ fun HalamanLogin(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Login Proditi",
+                text = "Login Aplikasi",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
@@ -50,24 +53,44 @@ fun HalamanLogin(
             // Input Email
             OutlinedTextField(
                 value = viewModel.email,
-                onValueChange = { viewModel.updateEmail(it) },
+                onValueChange = {
+                    viewModel.updateEmail(it)
+                    isError = false // Hilangkan error saat user mulai mengetik
+                },
                 label = { Text("Email") },
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+                // Validasi Visual: Merah jika error aktif & email kosong
+                isError = isError && viewModel.email.isBlank(),
+                supportingText = {
+                    if (isError && viewModel.email.isBlank()) {
+                        Text("Email tidak boleh kosong", color = MaterialTheme.colorScheme.error)
+                    }
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Input Password
             OutlinedTextField(
                 value = viewModel.password,
-                onValueChange = { viewModel.updatePassword(it) },
+                onValueChange = {
+                    viewModel.updatePassword(it)
+                    isError = false // Hilangkan error saat user mulai mengetik
+                },
                 label = { Text("Password") },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff, contentDescription = null)
+                    }
+                },
+                // Validasi Visual: Merah jika error aktif & password kosong
+                isError = isError && viewModel.password.isBlank(),
+                supportingText = {
+                    if (isError && viewModel.password.isBlank()) {
+                        Text("Password tidak boleh kosong", color = MaterialTheme.colorScheme.error)
                     }
                 },
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -79,7 +102,14 @@ fun HalamanLogin(
 
             // Tombol Login
             Button(
-                onClick = { viewModel.login(onLoginSuccess) },
+                onClick = {
+                    // Cek Validasi Sebelum Login
+                    if (viewModel.email.isBlank() || viewModel.password.isBlank()) {
+                        isError = true // Aktifkan mode error
+                    } else {
+                        viewModel.login(onLoginSuccess)
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = uiState !is LoginUiState.Loading
             ) {
@@ -90,7 +120,7 @@ fun HalamanLogin(
                 }
             }
 
-            // Pesan Error
+            // Pesan Error dari Server (misal: Password salah)
             if (uiState is LoginUiState.Error) {
                 Text(
                     text = uiState.message,
