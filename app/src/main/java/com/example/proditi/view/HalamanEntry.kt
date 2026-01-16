@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -26,8 +29,6 @@ fun HalamanEntry(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-
-    // State untuk Validasi
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
@@ -48,29 +49,31 @@ fun HalamanEntry(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Dropdown Barang
+            // Dropdown Barang (Icon Inventory)
             DropdownMenuField(
                 label = "Pilih Barang",
                 options = viewModel.listBarang.map { it.id.toString() to it.namaBarang },
                 selectedId = if (viewModel.uiStatePeminjaman.detailPeminjaman.barangId == 0) "" else viewModel.uiStatePeminjaman.detailPeminjaman.barangId.toString(),
                 isError = isError && viewModel.uiStatePeminjaman.detailPeminjaman.barangId == 0,
+                leadingIcon = { Icon(Icons.Default.Inventory, contentDescription = null) },
                 onSelected = { id ->
                     viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(barangId = id.toInt()))
                 }
             )
 
-            // Dropdown Peminjam
+            // Dropdown Peminjam (Icon Person)
             DropdownMenuField(
                 label = "Pilih Peminjam",
                 options = viewModel.listPeminjam.map { it.id.toString() to it.namaPeminjam },
                 selectedId = if (viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId == 0) "" else viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId.toString(),
                 isError = isError && viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId == 0,
+                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                 onSelected = { id ->
                     viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(peminjamId = id.toInt()))
                 }
             )
 
-            // Date Picker: Tanggal Pinjam
+            // Date Picker Pinjam
             DatePickerField(
                 label = "Tanggal Pinjam",
                 value = viewModel.uiStatePeminjaman.detailPeminjaman.tanggalPinjam,
@@ -80,7 +83,7 @@ fun HalamanEntry(
                 isError = isError && viewModel.uiStatePeminjaman.detailPeminjaman.tanggalPinjam.isBlank()
             )
 
-            // Date Picker: Tanggal Kembali
+            // Date Picker Kembali
             DatePickerField(
                 label = "Tanggal Kembali",
                 value = viewModel.uiStatePeminjaman.detailPeminjaman.tanggalKembali,
@@ -91,21 +94,15 @@ fun HalamanEntry(
             )
 
             if (isError) {
-                Text(
-                    text = errorMessage,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall
-                )
+                Text(text = errorMessage, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
 
             Button(
                 onClick = {
-                    // VALIDASI MANUAL
                     if (viewModel.uiStatePeminjaman.detailPeminjaman.barangId == 0 ||
                         viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId == 0 ||
                         viewModel.uiStatePeminjaman.detailPeminjaman.tanggalPinjam.isBlank() ||
-                        viewModel.uiStatePeminjaman.detailPeminjaman.tanggalKembali.isBlank()
-                    ) {
+                        viewModel.uiStatePeminjaman.detailPeminjaman.tanggalKembali.isBlank()) {
                         isError = true
                         errorMessage = "Semua data wajib diisi!"
                     } else {
@@ -117,15 +114,17 @@ fun HalamanEntry(
                         }
                     }
                 },
-                modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
+                Icon(Icons.Default.Save, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
                 Text("Simpan Peminjaman")
             }
         }
     }
 }
 
-// --- Helper Components (Dropdown & DatePicker) ---
+// --- Helper Components with Icon Support ---
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -134,6 +133,7 @@ fun DropdownMenuField(
     options: List<Pair<String, String>>,
     selectedId: String,
     isError: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null, // Tambah support Icon
     onSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -149,11 +149,11 @@ fun DropdownMenuField(
             onValueChange = {},
             readOnly = true,
             label = { Text(label) },
+            leadingIcon = leadingIcon, // Pasang Icon
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             isError = isError,
             modifier = Modifier.menuAnchor().fillMaxWidth()
         )
-
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
@@ -161,10 +161,7 @@ fun DropdownMenuField(
             options.forEach { option ->
                 DropdownMenuItem(
                     text = { Text(option.second) },
-                    onClick = {
-                        onSelected(option.first)
-                        expanded = false
-                    }
+                    onClick = { onSelected(option.first); expanded = false }
                 )
             }
         }
@@ -187,21 +184,17 @@ fun DatePickerField(
         onValueChange = {},
         readOnly = true,
         label = { Text(label) },
-        trailingIcon = {
-            IconButton(onClick = { showDatePicker = true }) {
-                Icon(Icons.Default.DateRange, contentDescription = "Pilih Tanggal")
-            }
-        },
+        leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) }, // Icon Kalender di Kiri
+        trailingIcon = { IconButton(onClick = { showDatePicker = true }) { Icon(Icons.Default.DateRange, contentDescription = null) } },
         isError = isError,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { showDatePicker = true },
-        enabled = false, // Disable manual typing
+        modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true },
+        enabled = false,
         colors = OutlinedTextFieldDefaults.colors(
             disabledTextColor = MaterialTheme.colorScheme.onSurface,
             disabledBorderColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline,
             disabledLabelColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
     )
 
@@ -217,11 +210,7 @@ fun DatePickerField(
                     showDatePicker = false
                 }) { Text("OK") }
             },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
+            dismissButton = { TextButton(onClick = { showDatePicker = false }) { Text("Cancel") } }
+        ) { DatePicker(state = datePickerState) }
     }
 }

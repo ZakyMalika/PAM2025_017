@@ -1,6 +1,11 @@
 package com.example.proditi.uicontroller.view
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -19,72 +24,61 @@ fun HalamanEdit(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        topBar = { TopAppBar(title = { Text("Edit Peminjaman") }) }
+        topBar = {
+            TopAppBar(
+                title = { Text("Edit Peminjaman") },
+                navigationIcon = {
+                    IconButton(onClick = navigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding).padding(16.dp)
+            modifier = Modifier.padding(innerPadding).padding(16.dp).fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
-            // Dropdown Barang
             DropdownMenuField(
                 label = "Pilih Barang",
                 options = viewModel.listBarang.map { it.id.toString() to it.namaBarang },
-                selectedId = if (viewModel.uiStatePeminjaman.detailPeminjaman.barangId == 0) "" else viewModel.uiStatePeminjaman.detailPeminjaman.barangId.toString(),
-                isError = isError && viewModel.uiStatePeminjaman.detailPeminjaman.barangId == 0,
-                onSelected = { id ->
-                    viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(barangId = id.toInt()))
-                }
+                selectedId = viewModel.uiStatePeminjaman.detailPeminjaman.barangId.toString(),
+                leadingIcon = { Icon(Icons.Default.Inventory, contentDescription = null) },
+                onSelected = { id -> viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(barangId = id.toInt())) }
             )
-            Spacer(Modifier.height(8.dp))
 
-            // Dropdown Peminjam
             DropdownMenuField(
                 label = "Pilih Peminjam",
                 options = viewModel.listPeminjam.map { it.id.toString() to it.namaPeminjam },
-                selectedId = if (viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId == 0) "" else viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId.toString(),
-                isError = isError && viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId == 0,
-                onSelected = { id ->
-                    viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(peminjamId = id.toInt()))
-                }
+                selectedId = viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId.toString(),
+                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                onSelected = { id -> viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(peminjamId = id.toInt())) }
             )
-            Spacer(Modifier.height(8.dp))
 
-            // Date Picker Pinjam
             DatePickerField(
                 label = "Tanggal Pinjam",
                 value = viewModel.uiStatePeminjaman.detailPeminjaman.tanggalPinjam,
-                onDateSelected = { viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(tanggalPinjam = it)) },
-                isError = isError && viewModel.uiStatePeminjaman.detailPeminjaman.tanggalPinjam.isBlank()
+                onDateSelected = { viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(tanggalPinjam = it)) }
             )
 
-            Spacer(Modifier.height(8.dp))
-
-            // Date Picker Kembali
             DatePickerField(
                 label = "Tanggal Kembali",
                 value = viewModel.uiStatePeminjaman.detailPeminjaman.tanggalKembali,
-                onDateSelected = { viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(tanggalKembali = it)) },
-                isError = isError && viewModel.uiStatePeminjaman.detailPeminjaman.tanggalKembali.isBlank()
+                onDateSelected = { viewModel.updateUiState(viewModel.uiStatePeminjaman.detailPeminjaman.copy(tanggalKembali = it)) }
             )
 
             if (isError) {
                 Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
             }
 
-            // Button Update
             Button(
                 onClick = {
-                    if (viewModel.uiStatePeminjaman.detailPeminjaman.barangId == 0 ||
-                        viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId == 0 ||
-                        viewModel.uiStatePeminjaman.detailPeminjaman.tanggalPinjam.isBlank() ||
-                        viewModel.uiStatePeminjaman.detailPeminjaman.tanggalKembali.isBlank()
-                    ) {
+                    if (viewModel.uiStatePeminjaman.detailPeminjaman.barangId == 0 || viewModel.uiStatePeminjaman.detailPeminjaman.peminjamId == 0) {
                         isError = true
                         errorMessage = "Semua data harus diisi!"
                     } else {
@@ -96,8 +90,10 @@ fun HalamanEdit(
                         }
                     }
                 },
-                modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
+                Icon(Icons.Default.Save, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
                 Text("Update Data")
             }
         }

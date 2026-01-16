@@ -1,12 +1,17 @@
 package com.example.proditi.uicontroller.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proditi.viewmodel.DetailUiState
@@ -22,13 +27,9 @@ fun HalamanDetail(
     navigateToEdit: (Int) -> Unit,
     viewModel: DetailViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
-    // 1. AUTO REFRESH (Penting agar data terupdate setelah edit)
-    LaunchedEffect(Unit) {
-        viewModel.getById()
-    }
+    LaunchedEffect(Unit) { viewModel.getById() }
 
     val uiState by viewModel.detailUiState.collectAsState()
-
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -37,55 +38,77 @@ fun HalamanDetail(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             ProdiTITopAppBar(
-                title = "Detail Peminjaman",
+                title = "Detail Transaksi",
                 canNavigateBack = true,
                 navigateUp = navigateBack
             )
         },
         floatingActionButton = {
             if (uiState is DetailUiState.Success) {
-                val id = (uiState as DetailUiState.Success).peminjaman.id
-                FloatingActionButton(onClick = { navigateToEdit(id) }) {
+                FloatingActionButton(
+                    onClick = { navigateToEdit((uiState as DetailUiState.Success).peminjaman.id) },
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit")
                 }
             }
         }
     ) { innerPadding ->
         when (val state = uiState) {
-            is DetailUiState.Loading -> Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                CircularProgressIndicator()
-            }
-            is DetailUiState.Error -> Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                Text("Error saat memuat data")
-            }
+            is DetailUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+            is DetailUiState.Error -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Error") }
             is DetailUiState.Success -> {
                 Column(
-                    modifier = Modifier.padding(innerPadding).padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.padding(innerPadding).padding(24.dp).fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // Ikon Besar
+                    Box(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.tertiaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Assignment,
+                            contentDescription = null,
+                            modifier = Modifier.size(50.dp),
+                            tint = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
+
+                    Spacer(Modifier.height(24.dp))
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
                             DetailRow("Nama Barang", state.peminjaman.barang?.namaBarang ?: "-")
+                            Spacer(Modifier.height(8.dp))
                             DetailRow("Peminjam", state.peminjaman.peminjam?.namaPeminjam ?: "-")
+                            Divider(Modifier.padding(vertical = 12.dp))
                             DetailRow("Tanggal Pinjam", state.peminjaman.tanggalPinjam)
+                            Spacer(Modifier.height(8.dp))
                             DetailRow("Tanggal Kembali", state.peminjaman.tanggalKembali)
                         }
                     }
 
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(32.dp))
+
                     Button(
                         onClick = { showDeleteDialog = true },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Hapus Data")
+                        Text("Hapus Data (Barang Kembali)")
                     }
                 }
             }
         }
     }
 
-    // DIALOG KONFIRMASI HAPUS
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
@@ -93,13 +116,15 @@ fun HalamanDetail(
             text = { Text("Yakin ingin menghapus data ini?") },
             confirmButton = {
                 TextButton(onClick = {
-                    coroutineScope.launch {
-                        viewModel.deletePeminjaman()
-                        showDeleteDialog = false
-                        snackbarHostState.showSnackbar("Data Berhasil Dihapus")
-                        delay(600)
-                        navigateBack()
-                    }
+                    viewModel.deletePeminjaman(onSuccess = {
+                        // PERBAIKAN: Bungkus dengan coroutineScope.launch
+                        coroutineScope.launch {
+                            showDeleteDialog = false
+                            snackbarHostState.showSnackbar("Data Berhasil Dihapus")
+                            delay(600) // delay aman dipanggil di sini
+                            navigateBack()
+                        }
+                    })
                 }) { Text("Hapus", color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
@@ -110,9 +135,9 @@ fun HalamanDetail(
 }
 
 @Composable
-fun DetailRow(label: String, value: String) {
+private fun DetailRow(label: String, value: String) {
     Column {
-        Text(text = label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-        Text(text = value, style = MaterialTheme.typography.bodyLarge)
+        Text(text = label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
     }
 }
